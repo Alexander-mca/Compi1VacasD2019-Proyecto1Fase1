@@ -1,0 +1,219 @@
+package Analizadores;
+
+import java_cup.runtime.*;
+import java.util.LinkedList;
+import Arbol.Entorno.Tipo;
+
+import Arbol.Expresion;
+import Arbol.AST;
+import Arbol.Instruccion;
+import Arbol.Nodo;
+import Arbol.Expresiones.Id;
+import Arbol.Expresiones.Literal;
+import Arbol.Expresiones.Aumento;
+import Arbol.Expresiones.Decremento;
+import Arbol.Expresiones.Aritmeticas.*;
+import Arbol.Expresiones.relacionales.*;
+import Arbol.Expresiones.Logicas.*;
+import Arbol.instrucciones.*;
+
+
+
+
+
+parser code 
+{:   
+
+    /* Variable que guarda el árbol de sintáxis abstracta generado luego del análisis sintáctico */
+    public AST AST;
+    
+    /**
+     * Método al que se llama automáticamente ante algún error sintactico.
+     **/ 
+    public void syntax_error(Symbol s){ 
+            System.err.println("Error Sintáctico en la Línea " + (s.left) +" Columna "+s.right+ ". No se esperaba este componente: " +s.value+".");
+
+            //Interfaz.lista_errores.add(new CError("Sintáctico", "No se esperaba este componente '" + s.value + "'", s.left, s.right));
+    
+    } 
+    /**
+     * Método al que se llama en el momento en que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+            System.err.println("Error síntactico irrecuperable en la Línea " + (s.left)+ " Columna "+s.right+". Componente " + s.value + " no reconocido."); 
+    }  
+:} 
+
+terminal String mas,menos,por,division,potencia,parizquierdo,parderecho,igual,puntoycoma,llaveizq,llaveder,rint,rdouble,rchar,rboolean,rstring,rclass,coma,rvoid;
+terminal String entero,doble,rtrue,rfalse,cadena,caracter,id,rprintln,rprint,rprinttabla;
+terminal String menorque,mayorque,menorigualque,mayorigualque,igualigual,diferenteque,or,and,xor,not,rif,relse,rwhile,rbreak,rcontinue,modulo,rfor,rdo,rswitch,rcase,rdefault,dospuntos,interrogacion,masmas,menosmenos,rpow,rreturn,corizquierdo,corderecho,rnew,rpublic,rprotected,rprivate,rabstract,rstatic,rfinal,rstr,rtoDouble,rtoInt,rtoChar,rextends,punto,rthis,rnull,rimport,
+rgraph,rsuper,rread_file,rwrite_file,rinstanceof,rread;
+
+terminal umenos; //Para manejar el - E
+
+non terminal INICIO;
+non terminal LinkedList<Nodo> L_INSTRUCCIONES;
+non terminal Instruccion INSTRUCCION,DECLARACION,ASIGNACION, IMPRIMIR, SENTENCIA_IF, SENT_WHILE, BREAK, CONTINUE,SENT_DOWHILE, SENT_FOR, SENT_SWITCH,FORD,CASOS,SENT_IMPORT;
+non terminal Nodo FORAUM;
+non terminal Expresion E,M,VALORES;
+non terminal Bloque BLOQUE,BLOQUECASE;
+non terminal LinkedList<Instruccion> L_CONDICIONES,L_CASOS;
+
+
+non terminal Tipo T;
+
+
+//Operaciones numericas
+//precedence left interrogacion; //Así lo tenía antes
+precedence right interrogacion,dospuntos;
+
+
+precedence left or;
+precedence left and;
+precedence left xor;
+precedence right not;
+
+precedence left menorque,menorigualque,mayorque,mayorigualque,igualigual,diferenteque;
+
+precedence left mas,menos;
+precedence left por,division,modulo;
+precedence left potencia;
+precedence left parizquierdo,parderecho;
+//precedence left masmas,menosmenos; //Así lo tenía antes
+
+precedence left punto; //Para los accesos
+
+precedence left umenos;
+
+start with INICIO; 
+
+INICIO::= L_INSTRUCCIONES:a
+    {:
+    //se guarda el AST, que es la lista principal de instrucciones en la variable
+    //AST que se definió dentro del parser
+    parser.AST=new AST(a);
+        
+    :}
+;
+
+
+L_INSTRUCCIONES ::= L_INSTRUCCIONES:a INSTRUCCION:b {: RESULT=a;RESULT.add(b); :}
+                            | INSTRUCCION:a {: RESULT=new LinkedList<>(); RESULT.add(a);:}
+                            | L_INSTRUCCIONES:a M:b puntoycoma {:RESULT=a;RESULT.add(b);:}
+                            | M:a puntoycoma {: RESULT=new LinkedList<>(); RESULT.add(a);:}
+;
+L_CASOS ::=L_CASOS:a CASOS:b {: RESULT=a;RESULT.add(b); :}
+          | CASOS:a {: RESULT=new LinkedList<>(); RESULT.add(a);:}
+;
+INSTRUCCION ::= FORD:a puntoycoma {: RESULT=a; :}
+            | IMPRIMIR:a puntoycoma{: RESULT=a; :}
+            | SENTENCIA_IF:a {:RESULT=a;:}
+            | SENT_WHILE:a {:RESULT=a;:}
+            | SENT_DOWHILE:a {:RESULT=a;:}
+            | BREAK:a {:RESULT=a;:}
+            | CONTINUE:a {:RESULT=a;:}
+            | SENT_FOR:a {:RESULT=a;:}
+            | SENT_SWITCH:a {:RESULT=a;:}   
+            | SENT_IMPORT:a {:RESULT=a;:}
+            
+;
+
+
+DECLARACION ::= 
+        T:a id:b igual E:c {: RESULT=new Declaracion(a,b,c,bleft,bright); :}
+        | T:a id:b {:  RESULT=new Declaracion(a,b,bleft,bright); :}
+;
+FORD::= DECLARACION:a {:RESULT=a;:}
+        | ASIGNACION:a {:RESULT=a;:}
+;
+ASIGNACION ::= 
+                id:a igual E:b {: RESULT=new Asignacion(a,aleft,aright,b); :}
+                //|id:a igual DERK:b {: RESULT=new Asignacion(a,aleft,aright,b); :}
+                //| id:a L_DIMENSIONES_EXPRESION:b igual E:c {: RESULT = new AsignacionArreglo(a,aleft,aright,b,c); :}
+;
+
+T ::= rint:a {: RESULT=new Tipo(Tipo.EnumTipo.entero); :}
+    | rchar {: RESULT=new Tipo(Tipo.EnumTipo.caracter); :}
+    | rboolean {: RESULT=new Tipo(Tipo.EnumTipo.booleano); :}
+    | rdouble {: RESULT=new Tipo(Tipo.EnumTipo.doble); :}
+    | rstring {: RESULT=new Tipo(Tipo.EnumTipo.cadena); :}
+;
+
+IMPRIMIR ::= rprintln parizquierdo E:a parderecho {: RESULT=new Imprimir(a,true); :}
+                | rprint parizquierdo E:a parderecho {: RESULT= new Imprimir(a,false);  :}
+               
+;
+SENTENCIA_IF ::= L_CONDICIONES:a relse BLOQUE:b  {:RESULT=new If(a,b,aleft,aright);:}
+                |L_CONDICIONES:a {:RESULT=new If(a,null,aleft,aright);:}
+;
+
+L_CONDICIONES ::= L_CONDICIONES:e relse rif parizquierdo E:a parderecho BLOQUE:b {: Condicionif resultado=new Condicionif(a,b,aleft,aright);e.add(resultado); RESULT=e;:}
+                    | rif:c parizquierdo E:a parderecho BLOQUE:b {:Condicionif resultado=new Condicionif(a,b,aleft,aright); LinkedList<Instruccion> lista_cond=new LinkedList<>(); lista_cond.add(resultado); RESULT=lista_cond;:}
+;
+BLOQUE::= llaveizq llaveder {:RESULT=null;:}
+            | llaveizq L_INSTRUCCIONES:a llaveder {:RESULT=new Bloque(a);:}
+            
+;
+//BLOQUECASE ::= llaveizq llaveder {:RESULT=null;:}
+ //           | llaveizq L_CASOS:a llaveder {:RESULT=new Bloque(a);:}
+//;
+CASOS ::=  rcase VALORES:b dospuntos L_INSTRUCCIONES:c {:RESULT=new Caso(b,new Bloque(c));:}
+            | rdefault dospuntos L_INSTRUCCIONES:b {:RESULT=new Default(new Bloque(b));:}
+;
+SENT_SWITCH ::= rswitch parizquierdo id:a parderecho llaveizq L_CASOS:b llaveder {:RESULT=new Switch(new Id(a, aleft,aright),b);:}
+                |rswitch parizquierdo id:a parderecho llaveizq  llaveder {:RESULT=new Switch(new Id(a, aleft,aright),null);:}
+;
+SENT_FOR ::= rfor parizquierdo FORD:a puntoycoma E:b puntoycoma E:c parderecho BLOQUE:d {:RESULT=new For(a,b,c,d);:}
+               
+;
+FORAUM::= ASIGNACION:a {:RESULT=a;:}
+          | M:a {:RESULT=a;:}
+;
+BREAK ::= rbreak:a puntoycoma {:RESULT=new Break(aleft,aright);:}
+;
+
+CONTINUE ::= rcontinue:a puntoycoma {:RESULT=new Continue(aleft,aright);:}
+;
+
+SENT_WHILE ::= rwhile parizquierdo E:a parderecho BLOQUE:b {:RESULT=new While(a,b);:}
+;
+
+SENT_DOWHILE ::= rdo BLOQUE:b rwhile parizquierdo E:a parderecho puntoycoma {:RESULT= new Dowhile(a,b);:}
+;
+VALORES ::= entero:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.entero), a); :}
+        | caracter:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.caracter), a.replace("\'","")); :}
+        //| caracter:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.caracter), a); :}
+        | rtrue {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.booleano), true); :}
+        | rfalse {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.booleano), false); :}
+        | doble:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.doble), a); :}
+        | cadena:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.cadena), a.replace("\"","")); :}
+        //| cadena:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.cadena), a); :}
+
+;
+SENT_IMPORT ::= rimport cadena:a puntoycoma {:RESULT=new Importar(new Literal(new Tipo(Tipo.EnumTipo.cadena),a));:} 
+;
+E ::=   VALORES:a {:RESULT=a;:}
+        | E:a mas E:b {: RESULT=new Suma(aleft,aright,a,b); :}
+        | E:a por E:b  {: RESULT=new Multiplicacion(aleft,aright,a,b); :}
+        | parizquierdo E:a parderecho {:RESULT=a;:}
+        | E:a division E:b  {: RESULT=new Division(aleft,aright,a,b); :}
+        | umenos E:a {:RESULT=a;:}
+        | M:a {:RESULT=a;:}
+        | E:a menos E:b {:RESULT=new Resta(aleft,aright,a,b);:}
+        | E:a modulo E:b  {: RESULT=new Modulo(aleft,aright,a,b); :}
+        | E:a potencia E:b  {: RESULT=new Potencia(aleft,aright,a,b); :}
+        | id:a {: RESULT = new Id(a, aleft,aright); :}
+        | E:a mayorque E:b {: RESULT=new Mayorque(aleft,aright,a,b);:}
+        | E:a menorque E:b {: RESULT=new Menorque(aleft,aright,a,b);:}
+        | E:a mayorigualque E:b {: RESULT=new Mayorigual(aleft,aright,a,b);:}
+        | E:a menorigualque E:b {: RESULT=new Menorigual(aleft,aright,a,b);:}
+        | E:a igualigual E:b {: RESULT=new Igualque(aleft,aright,a,b);:}
+        | E:a diferenteque E:b {: RESULT=new Diferenteque(aleft,aright,a,b);:}
+        | E:a or E:b {: RESULT=new Or(aleft,aright,a,b);:}
+        | E:a and E:b {: RESULT=new And(aleft,aright,a,b);:}
+        | E:a xor E:b {: RESULT=new Xor(aleft,aright,a,b);:}
+        | not:a E:b {: RESULT=new Not(aleft,aright,b);:}
+;
+M ::= E:a masmas {:RESULT=new Aumento(a);:}
+        | E:a menosmenos {:RESULT=new Decremento(a);:}
+;
