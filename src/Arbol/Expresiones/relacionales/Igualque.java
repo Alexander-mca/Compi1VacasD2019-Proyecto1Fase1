@@ -9,6 +9,7 @@ import Arbol.Entorno.Entorno;
 import Arbol.Entorno.Tipo;
 import Arbol.Expresion;
 import Arbol.Expresiones.Literal;
+import Arbol.Objeto;
 import Interfaz.CError;
 import static Interfaz.Editor.lista_errores;
 
@@ -36,33 +37,33 @@ public class Igualque extends Expresion {
         if (res1 != null && res2 != null) {
             switch (res1.tipo.tipo) {
                 case entero:
-                    int a = Integer.parseInt(res1.valor.toString());
+//                    int a = Integer.parseInt(res1.valor.toString());
                     switch (res2.tipo.tipo) {
                         case entero:
 
-                            int b = Integer.parseInt(res2.valor.toString());
-                            return Validar(a, b);
+//                            int b = Integer.parseInt(res2.valor.toString());
+                            return Validar(res1.valor.toString(), res2.valor.toString());
                         case doble:
-                            double be = Double.parseDouble(res2.valor.toString());
-                            return Validar(a, be);
+//                            double be = Double.parseDouble(res2.valor.toString());
+                            return Validar(res1.valor.toString(), res2.valor.toString());
                         case caracter:
                             int ascii = (int) res2.valor.toString().charAt(0);
-                            return Validar(a, ascii);
+                            return Validar(res1.valor.toString(), String.valueOf(ascii));
 
                     }
                     break;
                 case doble:
-                   double var1=Double.parseDouble(res1.valor.toString());
+//                   double var1=Double.parseDouble(res1.valor.toString());
                    switch(res2.tipo.tipo){
                        case doble:
-                           double var2=Double.parseDouble(res2.valor.toString());
-                           return Validar(var1,var2);
+//                           double var2=Double.parseDouble(res2.valor.toString());
+                           return Validar(res1.valor.toString(), res2.valor.toString());
                        case  entero:
-                           int va1=Integer.parseInt(res2.valor.toString());
-                           return Validar(var1,va1);
+//                           int va1=Integer.parseInt(res2.valor.toString());
+                          return Validar(res1.valor.toString(), res2.valor.toString());
                        case caracter:
                            int ascii=(int)res2.valor.toString().charAt(0);
-                           return Validar(var1,ascii);
+                            return Validar(res1.valor.toString(), String.valueOf(ascii));
                            
                    }
                     break;
@@ -71,50 +72,74 @@ public class Igualque extends Expresion {
                     switch(res2.tipo.tipo){
                         case caracter:
                             int y=(int)res2.valor.toString().charAt(0);
-                            return Validar(x,y);
+                            return Validar(String.valueOf(x),String.valueOf(y));
                         case entero:
-                            int b=Integer.parseInt(res2.valor.toString());
-                            return Validar(x,b);
+//                            int b=Integer.parseInt(res2.valor.toString());
+                            return Validar(String.valueOf(x),res2.valor.toString());
                         case doble:
-                            double r=Double.parseDouble(res2.valor.toString());
-                            return Validar(x,r);
+//                            double r=Double.parseDouble(res2.valor.toString());
+                            return Validar(String.valueOf(x),res2.valor.toString());
                     }
                     break;
                 case cadena:
                     switch(res2.tipo.tipo){
                         case cadena:
-                            if(res1.valor.toString().equals(res2.valor.toString())){
-                                return new Literal(new Tipo(Tipo.EnumTipo.cadena),true);
-                            }else{
-                                 return new Literal(new Tipo(Tipo.EnumTipo.cadena),false);
-                            }
+                           return Validar(res1.valor.toString(),res2.valor.toString());
                            
                     }
                     break;
                 case booleano:
                     switch(res2.tipo.tipo){
                         case booleano:
-                            return Validar(res1.valor,res2.valor);
+                            return Validar(res1.valor.toString(),res2.valor.toString());
                     }
                     break;
                     //agregar tipos objeto en Fase2
-               
+                case objeto:
+                    Objeto obj1=(Objeto)res1.valor;
+                    switch(res2.tipo.tipo){
+                        case objeto:
+                            Objeto obj2=(Objeto)res2.valor;
+                            return ValidarObjeto(obj1,obj2);
+                        case nulo:
+                            return ValidarObjeto(obj1,null);
+                     }
+                        
+                    break;
+                case nulo:
+                    switch(res2.tipo.tipo){
+                        case nulo:
+                            return ValidarObjeto(null,null);
+                        case objeto:
+                            Objeto obj=(Objeto)res2.valor;
+                            return ValidarObjeto(null,obj);
+                    }
+                    break;
                    
             }
-          System.out.println("Error Semantico: No es posible comparar los valores "+res1.tipo.tipo+" Tipo: "+tipo.tipo+" / "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
-            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nNo se puede comparar un "+res1.tipo.tipo+" con un "+res2.tipo.tipo, linea, columna);
+          System.out.println("Error Semantico: No es posible comparar los valores. "+res1.tipo.tipo+" == "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
+            CError error=new CError("Semantico", "Opción incorrecta:\nNo se puede comparar. Tipo: "+res1.tipo.tipo+" == Tipo: "+res2.tipo.tipo, linea, columna);
             lista_errores.add(error);
+             return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
         }
         return null;
     }
 
-    private Literal Validar(Object a, Object b) {
+    private Literal Validar(String a, String b) {
         
-        if (a == b) {
+        if (a.equals(b)) {
             return new Literal(new Tipo(Tipo.EnumTipo.booleano), true);
         } else {
             return new Literal(new Tipo(Tipo.EnumTipo.booleano), false);
         }
+    }
+    private Literal ValidarObjeto(Objeto a,Objeto b){
+         if (a.equals(b)) {
+            return new Literal(new Tipo(Tipo.EnumTipo.booleano), true);
+        } else {
+            return new Literal(new Tipo(Tipo.EnumTipo.booleano), false);
+        }
+        
     }
 
 }

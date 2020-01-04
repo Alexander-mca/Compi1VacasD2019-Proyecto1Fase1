@@ -1,0 +1,19 @@
+class Persona {
+int edad;
+Persona () {
+int [][] arr=generarArreglo();
+//int size=arr.size;
+print("el tamano de arr es ");
+}
+Persona (int edad){
+this.edad = edad;
+}
+void imprimir(String g){
+	println(g);
+}
+int [][] generarArreglo(){
+	int [][] arr={{2,3},{4,5}};
+	//println(arr.size);
+    return arr;
+}
+}

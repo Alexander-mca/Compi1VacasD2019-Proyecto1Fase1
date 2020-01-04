@@ -6,8 +6,11 @@
 package Arbol.Expresiones.Aritmeticas;
 
 import Arbol.Entorno.Entorno;
+import Arbol.Entorno.Tipo;
 import Arbol.Expresion;
 import Arbol.Expresiones.Literal;
+import Interfaz.CError;
+import static Interfaz.Editor.lista_errores;
 
 /**
  *
@@ -31,42 +34,53 @@ public class Modulo extends Expresion{
         Expresion res1=hijo1.getValor(ent);
         Expresion res2=hijo2.getValor(ent);
         
-        if(res1!=null && res2!=null){
+        if(res1!=null && res2!=null){ 
+            try{
             switch(res1.tipo.tipo){
-                case entero:
-                    if(!res2.valor.toString().equals("0")){
+                   case entero:
                     switch(res2.tipo.tipo){
                         case entero:
-                            int a=Integer.parseInt(res1.valor.toString());
-                            int b=Integer.parseInt(res2.valor.toString());
-                            return new Literal( res1.tipo, a%b);
-                            
+                            return new Literal(new Tipo(Tipo.EnumTipo.doble),Integer.parseInt(res1.valor.toString())%Integer.parseInt(res2.valor.toString()));
                         case doble:
-                           
-                            return new Literal( res2.tipo, Double.parseDouble(res1.valor.toString()) % Double.parseDouble(res2.valor.toString()) );
-                            
+                            return new Literal(new Tipo(Tipo.EnumTipo.doble),Double.parseDouble(res1.valor.toString())% Double.parseDouble(res2.valor.toString()));
+                        case caracter:
+                            int ascii=(int)res2.valor.toString().charAt(0);
+                            return new Literal(new Tipo(Tipo.EnumTipo.doble),Double.parseDouble(res1.valor.toString())%ascii);
                     }
-                    }else{
-                        System.out.println("Error Semantico: No se puede dividir entre 0. Linea: "+res1.linea +"Columna: "+res1.columna);
-                    }
-                    break;
                 case doble:
-                    if(!res2.valor.toString().equals("0")){
                      switch(res2.tipo.tipo){
                         case entero:
-                            
-                            return new Literal( res1.tipo, Double.parseDouble(res1.valor.toString()) % Double.parseDouble(res2.valor.toString()));
-                            
+                            return new Literal(res1.tipo,Double.parseDouble(res1.valor.toString())%Double.parseDouble(res2.valor.toString()));
                         case doble:
-                            
-                            return new Literal( res1.tipo, Double.parseDouble(res1.valor.toString()) % Double.parseDouble(res2.valor.toString()) );
-                            
-                    }
-                    }else{
-                        System.out.println("Error Semantico: No se puede dividir entre 0. Linea: "+res1.linea +"Columna: "+res1.columna);
-                    }
+                            return new Literal(res1.tipo,Double.parseDouble(res1.valor.toString())%Double.parseDouble(res2.valor.toString()));
+                    case caracter:
+                         int ascii=(int)res2.valor.toString().charAt(0);
+                            return new Literal(new Tipo(Tipo.EnumTipo.doble),Double.parseDouble(res1.valor.toString())%ascii);
+                     }    
+                    break;
+                case caracter:
+                int ascii=(int)res1.valor.toString().charAt(0);
+                switch(res2.tipo.tipo){
+                    case entero:
+                        return new Literal(new Tipo(Tipo.EnumTipo.entero),ascii%Integer.parseInt(res2.valor.toString()));
+                    case doble:
+                        return new Literal(res2.tipo,ascii%Double.parseDouble(res2.valor.toString()));
+                    case caracter:
+                        int asc=(int)res2.valor.toString().charAt(0);
+                        return new Literal(new Tipo(Tipo.EnumTipo.doble),ascii%asc);
+                }
                     break;
                 
+            }
+             System.out.println("Error Semantico: El tipo de valores que se les quiere aplicar modulo no son iguales. Tipo: "+res1.tipo.tipo+" % "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
+            CError error=new CError("Semantico", "Opción incorrecta:\nNo se puede aplicar modulo. Tipos no compatibles, Tipo: "+res1.tipo.tipo+" % Tipo: "+res2.tipo.tipo, linea, columna);
+            lista_errores.add(error);
+             return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
+            }catch(ArithmeticException e){
+                 System.out.println("Error de Ejecucion: No se puede dividir por 0. Linea: "+linea +" Columna: "+columna);
+            CError error=new CError("Ejecucion", "Opción incorrecta:\nNo se puede dividir por 0.", linea, columna);
+            lista_errores.add(error);
+             return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
             }
         }
        return null;

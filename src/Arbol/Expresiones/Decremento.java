@@ -28,8 +28,8 @@ public class Decremento extends Expresion{
 //    public Aumento(String nombre) {
 //        this.nombre=nombre;
 //    }
-    Expresion nombre;
-    public Decremento(Expresion nombre){
+   String nombre;
+    public Decremento(String nombre){
         this.nombre=nombre;
     }
             
@@ -37,15 +37,16 @@ public class Decremento extends Expresion{
    
   @Override
     public Expresion getValor(Entorno ent) {
-//       Simbolo resultado=ent.buscar(nombre, linea, columna, "La variable");
-        Expresion resultado=nombre.getValor(ent);
+       Id id1=new Id(nombre,linea,columna);
+       Expresion resultado=id1.getValor(ent);
+      //  Expresion resultado=nombre.getValor(ent);
         
-        if(resultado!=null){
+   
            
                switch(resultado.tipo.tipo){
                    case entero:
                        int a=Integer.parseInt(resultado.valor.toString());
-                       Expresion exp=nombre.getValor(ent);
+                       Expresion exp=resultado.getValor(ent);
                        a--;
                      
                        resultado.valor=a;
@@ -54,7 +55,7 @@ public class Decremento extends Expresion{
                        return exp;
                    case doble:
                         double b=Double.parseDouble(resultado.valor.toString());
-                       Expresion res=nombre.getValor(ent);
+                       Expresion res=resultado.getValor(ent);
                        b--;
                      
                        resultado.valor=b;
@@ -63,7 +64,7 @@ public class Decremento extends Expresion{
                        return res;
                    case caracter:
                        int c=(int)resultado.valor.toString().charAt(0);
-                      Expresion res2=nombre.getValor(ent);
+                      Expresion res2=resultado.getValor(ent);
                        c--;
                      
                        resultado.valor=(char)c;
@@ -73,12 +74,11 @@ public class Decremento extends Expresion{
                        
                }
                 
-            }else{
-                 System.out.println("Error Semantico: El incremento solo se puede usar en id's.  Valor "+nombre.tipo+" Linea: "+linea +" Columna: "+columna);
-            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nSolo se puede usar el incremento con Id's. Valor "+nombre.tipo, linea, columna);
-            lista_errores.add(error);
-            }
         
+                 System.out.println("Error Semantico: No se puede decrementar un id con valor de Tipo: "+resultado.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
+            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nSolo se puede usar el decremento con Id's de Tipo: "+resultado.tipo.tipo, linea, columna);
+            lista_errores.add(error);
+                
             
         return null;
     }

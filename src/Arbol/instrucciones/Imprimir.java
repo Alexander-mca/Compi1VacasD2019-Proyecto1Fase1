@@ -34,13 +34,18 @@ public class Imprimir extends Instruccion{
         String auxiliar="";
         if(salto){
             auxiliar="\n";
-        }      
+        }    
+        
+        
         
                 if(resultado!=null && resultado.tipo.tipo!=Tipo.EnumTipo.error){
+                    String val=resultado.valor.toString().replace("\\n", "\n");
+                    String val1=val.replace("\\r", "\r");
+                    String val2=val1.replace("\\t", "\t");
                     String salida=consola.getText();
-                           salida += "\n["+entrada+"]: " +resultado.valor+auxiliar;
+                           salida +=val2+auxiliar;
                           consola.setText(salida);
-                          entrada++;
+//                          entrada++;
                     
                     //imprimir en consola de interfaz           
                 }

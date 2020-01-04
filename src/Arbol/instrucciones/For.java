@@ -35,19 +35,29 @@ public class For extends Instruccion {
     @Override
     public Object ejecutar(Entorno ent) {
         boolean ejecutado = false;
+        
+       
+           
+          
+           Entorno tabla=new Entorno(ent);
+       
         if (veces == 1) {
             lista_ciclos.add(TipoInstruccion.ciclo);
 //        Expresion variable=
 //valor1 declara o recupera el valor de la variable a usar en el for
-            valor1.ejecutar(ent);
+            
+            valor1.ejecutar(tabla);
         }
         //validacion se encarga de realizar la validacion de la expresion en el for
-        Expresion validacion = valor2.getValor(ent);
+        
+        Expresion validacion = valor2.getValor(tabla);
         
         if (validacion != null && Boolean.parseBoolean(validacion.valor.toString())) {
+            Entorno actual1=new Entorno(tabla);
+            if(bloque!=null){
             for (Nodo instruccion : bloque.intruccion) {
                 if (instruccion instanceof Instruccion) {
-                    Object obj = ((Instruccion) instruccion).ejecutar(ent);
+                    Object obj = ((Instruccion) instruccion).ejecutar(actual1);
                     if (obj instanceof Break) {
                         ejecutado = true;
                         break;
@@ -59,14 +69,15 @@ public class For extends Instruccion {
 //                  return null;
                     }
                 } else if (instruccion instanceof Expresion) {
-                    ((Expresion) instruccion).getValor(ent);
+                    ((Expresion) instruccion).getValor(actual1);
                 }
+            }
             }
             //valor3 aumenta o decrementa el valor de la variable
             if(valor3 instanceof Instruccion){
-                ((Instruccion)valor3).ejecutar(ent);
+                ((Instruccion)valor3).ejecutar(actual1);
         }else if(valor3 instanceof Expresion){
-             ((Expresion)valor3).getValor(ent);
+             ((Expresion)valor3).getValor(actual1);
         }
             
         
@@ -74,10 +85,10 @@ public class For extends Instruccion {
         
             if (!ejecutado) {
                 veces++;
-                ejecutar(ent);
+                ejecutar(actual1);
             }
-        }
-
+        
+       }
         return null;
     }
 

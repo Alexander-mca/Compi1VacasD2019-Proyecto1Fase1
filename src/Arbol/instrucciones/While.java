@@ -10,7 +10,9 @@ import Arbol.Expresion;
 import Arbol.Instruccion;
 import Arbol.Nodo;
 import Arbol.instrucciones.Contexto.TipoInstruccion;
+import Interfaz.CError;
 import static Interfaz.Editor.lista_ciclos;
+import static Interfaz.Editor.lista_errores;
 import java.util.LinkedList;
 
 /**
@@ -28,16 +30,19 @@ public class While extends Instruccion{
    }
     @Override
     public Object ejecutar(Entorno ent) {
-        Expresion resultado=condicion.getValor(ent);
+        Entorno actual=new Entorno(ent);
+        Expresion resultado=condicion.getValor(actual);
         boolean ejecutado=false;
         if(resultado!=null && Boolean.parseBoolean(resultado.valor.toString())){
             if(veces==1){
             lista_ciclos.add(TipoInstruccion.ciclo);
             }
+            
+            if(lista_instrucciones!=null){
           for(Nodo instruccion:lista_instrucciones.intruccion){
              
               if(instruccion instanceof Instruccion){
-               Object obj= ((Instruccion)instruccion).ejecutar(ent); 
+               Object obj= ((Instruccion)instruccion).ejecutar(actual); 
                if(obj instanceof Break){
                   ejecutado=true;
                   break;
@@ -49,14 +54,18 @@ public class While extends Instruccion{
 //                  return null;
               }
               }else if(instruccion instanceof Expresion){
-                  ((Expresion)instruccion).getValor(ent);
+                  ((Expresion)instruccion).getValor(actual);
               }
              
           }
+            }else{
+               lista_errores.add(new CError("Ejecucion","Bloque While vacío. Bucle infinito.",linea,columna));
+               return null;
+            }
           
           if(!ejecutado){
               veces++;
-             ejecutar(ent);
+             ejecutar(actual);
           }
         }
        return null;

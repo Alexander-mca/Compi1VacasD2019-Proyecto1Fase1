@@ -20,12 +20,16 @@ public class Default extends Instruccion{
     }
 
     @Override
-    public Object ejecutar(Entorno ent) {     
-            
-     Object obj=   bloque.ejecutar(ent);
+    public Object ejecutar(Entorno ent) { 
+                
+       Entorno nuevo=new Entorno(ent);
+     
+       
+     Object obj=   bloque.ejecutar(nuevo);
                  if(obj instanceof Break || obj instanceof Continue){
                 return obj;
             }
+        
        return true;
     }
     

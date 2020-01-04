@@ -25,20 +25,24 @@ public class Caso extends Instruccion{
 
     @Override
     public Object ejecutar(Entorno ent) {
-        Expresion resultado=value.getValor(ent);
         boolean ejecutado=false;
+        
+            Entorno actual=new Entorno(ent);
+              
+        Expresion resultado=value.getValor(actual);
+        
         
         if(resultado!=null){
 //            boolean caso=Boolean.parseBoolean(resultado.getValor(ent).toString());
      
             ejecutado=true;
-         Object obj= bloque.ejecutar(ent);
+         Object obj= bloque.ejecutar(actual);
             if(obj instanceof Break || obj instanceof Continue){
                 return obj;
             }
-        }    
+        }  
         
-            
+        
        return ejecutado;
     }
     

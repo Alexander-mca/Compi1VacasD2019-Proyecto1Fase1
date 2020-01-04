@@ -1,0 +1,22 @@
+digraph {
+
+node0[ 
+	shape=plaintext label=<
+	<table>
+		<tr><td>TIPO</td><td>ID</td><td>VALOR</td></tr>
+		<tr><td>Int</td><td>a</td><td>10</td></tr>
+	</table>
+>];
+
+node0 -> node1;
+node1[ 
+	shape=plaintext label=<
+	<table>
+		<tr><td>TIPO</td><td>ID</td><td>VALOR</td></tr>
+		<tr><td>Int</td><td>a</td><td>0</td></tr>
+		<tr><td>String</td><td>acceso</td><td>pude acceder a la variable de la importacion. :D</td></tr>
+	</table>
+>];
+
+
+}

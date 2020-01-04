@@ -20,29 +20,35 @@ import java.util.LinkedList;
  */
 public class Switch extends Instruccion{
 public Expresion exp;
-public LinkedList<Instruccion> lista_casos;
+public Bloque lista_casos;
 private int veces=1;
 private boolean ejecutado=false;
-    public Switch(Expresion exp, LinkedList<Instruccion> lista_casos) {
+    public Switch(Expresion exp, Bloque lista_casos) {
         this.exp = exp;
         this.lista_casos = lista_casos;
     }
 
     @Override
     public Object ejecutar(Entorno ent) {
-        Expresion resultado=exp.getValor(ent);
+        
        
+            Entorno actual=new Entorno(ent);
+           
+            Expresion resultado=exp.getValor(actual);
+           
+        
         if(resultado!=null){
             if(veces==1){
             lista_ciclos.add(TipoInstruccion.rswitch);
             }
-            for(Nodo caso:lista_casos){
+            if(lista_casos!=null){
+            for(Nodo caso:lista_casos.intruccion){
                 if(caso instanceof Caso){
                     if(!ejecutado){
                         Igualque igual=new Igualque(linea, columna, resultado,((Caso) caso).value);
-                        Expresion variable1=igual.getValor(ent);
+                        Expresion variable1=igual.getValor(actual);
                     if(Boolean.parseBoolean(variable1.valor.toString())){
-                        Object obj=((Instruccion)caso).ejecutar(ent);
+                        Object obj=((Instruccion)caso).ejecutar(actual);
                         ejecutado=true;  
                         if(obj instanceof Break){                                                     
                              break;
@@ -59,7 +65,7 @@ private boolean ejecutado=false;
                         /*si ya se encontro el case con el valor de switch entonces se barre con el resto de casos 
                         hasta encontrar un caso con break o un default*/
                         
-                         Object obj=((Instruccion)caso).ejecutar(ent);
+                         Object obj=((Instruccion)caso).ejecutar(actual);
                           
                         if(obj instanceof Break){                                                     
                              break;
@@ -70,7 +76,7 @@ private boolean ejecutado=false;
                     
                     if(ejecutado){
                         
-                         Object obj=((Instruccion)caso).ejecutar(ent);
+                         Object obj=((Instruccion)caso).ejecutar(actual);
                           
                         if(obj instanceof Break){                                                     
                              break;
@@ -78,7 +84,7 @@ private boolean ejecutado=false;
                     }else{
                         if(veces==2){
                             ejecutado=true;
-                             Object obj=((Instruccion)caso).ejecutar(ent);
+                             Object obj=((Instruccion)caso).ejecutar(actual);
                           
                         if(obj instanceof Break){                                                     
                              break;
@@ -93,12 +99,18 @@ private boolean ejecutado=false;
                         return caso;                
                 }
             }
+            }else{
+                ejecutado=true;
+            }
             if(!ejecutado){
                 veces++;
-                ejecutar(ent);
+                ejecutar(actual);
+            }else{
+                ejecutado=false;
             }
             
             
+        
         }
         return null;
     }

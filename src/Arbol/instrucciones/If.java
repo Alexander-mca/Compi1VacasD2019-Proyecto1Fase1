@@ -25,8 +25,9 @@ public class If extends Instruccion{
     @Override
     public Object ejecutar(Entorno ent) {
         boolean ejecutado=true;
+        Entorno actual=new Entorno(ent);
         for(Instruccion condicion: lista_condiciones){
-           Object obj= condicion.ejecutar(ent);
+           Object obj= condicion.ejecutar(actual);
             if(Boolean.parseBoolean(obj.toString())){
                 ejecutado=false;
                 //Si da error alguna vez, puede ser por este break
@@ -36,7 +37,7 @@ public class If extends Instruccion{
             }
         }
         if(ejecutado && bloqueelse!=null){
-        Entorno nuevo=new Entorno(ent);
+        Entorno nuevo=new Entorno(actual);
         bloqueelse.ejecutar(nuevo);
         }
         return null;

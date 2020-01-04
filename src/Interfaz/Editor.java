@@ -5,26 +5,38 @@
  */
 package Interfaz;
 
+import Analizadores.sym;
 import Arbol.AST;
+import com.mxrck.autocompleter.TextAutoCompleter;
 import Arbol.instrucciones.Contexto;
 import Arbol.instrucciones.Contexto.TipoInstruccion;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,6 +46,10 @@ import javax.swing.JViewport;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Element;
+import javax.swing.text.Highlighter;
 
 /**
  *
@@ -51,32 +67,57 @@ private int tabs=2;
      */
     public Editor() {
         initComponents();
-          ObtenerCursor(comando);      
+          ObtenerCursor(comando);   
+         AutoCompletar(comando);
        
     }
+    private void AutoCompletar(JTextPane jtext){
+      
+         String[] palabras={"print","println","int","double","String","char","import","for","switch","while","do","boolean","Graficar_dot","Graficar_entornos","if","else"
+                            ,"case","default","continue","break"};
+                  
+//       TextAutoCompleter texto=new TextAutoCompleter(jtext, palabras);
+//         List<String> items = new ArrayList<>();
+//         items.addAll(Arrays.asList(palabras));
+//         AutoCompleteDecorator.decorate(jtext,items,false);
+    
+       
+    }
+            
     private void ObtenerCursor(JTextPane a){
         a.addCaretListener((CaretEvent e) -> {
             JTextPane editArea = (JTextPane)e.getSource();
             
             
-            int linea = 1;
-            int columna = 1;
+//            int linea = 1;
+//            int columna = 1;
+//            
+//            try {
+//                int caretpos = editArea.getCaretPosition();
+//                linea= editArea.getLineOfOffset(caretpos);
+//                columna = caretpos - editArea.getLineStartOffset(linea);
+//                
+//                // Ya que las líneas las cuenta desde la 0
+//                linea += 1;
+//                columna++;
+//            } catch(Exception ex) { }
             
-            try {
-                int caretpos = editArea.getCaretPosition();
-                linea= editArea.get(caretpos);
-                columna = caretpos - editArea.getLineStartOffset(linea);
-                
-                // Ya que las líneas las cuenta desde la 0
-                linea += 1;
-                columna++;
-            } catch(Exception ex) { }
-            
+            int pos=editArea.getCaretPosition();
+            Element map=editArea.getDocument().getDefaultRootElement();
+            int linea=map.getElementIndex(pos);
+            Element lineElement=map.getElement(linea);
+            int columna=pos-lineElement.getStartOffset();
+            linea++;
+            columna++;
             // Actualizamos el estado
             cursor.setText("Linea: "+linea+" | Columna: "+columna);
         });
     }
-            
+         public void Colorear(){
+             JTextPane textpane=getTextArea();
+             textpane.getDocument();
+         }
+                 
    
 
     /**
@@ -91,7 +132,7 @@ private int tabs=2;
         jSeparator2 = new javax.swing.JSeparator();
         pestañas = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
-        jScrollPane3 = new javax.swing.JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
         comando = new javax.swing.JTextPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         consola = new javax.swing.JTextPane();
@@ -112,24 +153,23 @@ private int tabs=2;
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
-        pestañas.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
         pestañas.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 pestañasComponentShown(evt);
             }
         });
 
-        jScrollPane3.setViewportView(comando);
+        jScrollPane1.setViewportView(comando);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 689, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 689, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
         );
 
         pestañas.addTab("tab1", jPanel1);
@@ -182,6 +222,11 @@ private int tabs=2;
         jMenu2.setText("Reportes");
 
         jMenuItem5.setText("Reporte de Errores");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem5);
 
         jMenuItem6.setText("Reporte AST");
@@ -238,7 +283,7 @@ private int tabs=2;
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser();
-         fileChooser.setFileFilter(new FileNameExtensionFilter("Archivos de texto *.txt", "txt"));
+         fileChooser.setFileFilter(new FileNameExtensionFilter("Archivos de texto *.NM", "NM"));
         int seleccion = fileChooser.showOpenDialog(this);
 //        fileChooser.setDialogTitle("El exito es de quien persevera");
         if (seleccion == JFileChooser.APPROVE_OPTION){
@@ -258,7 +303,7 @@ private int tabs=2;
                       texto+= aux+ "\n";
                    }
                     lee.close();
-                    JTextArea comando1=new JTextArea();
+                    JTextPane comando1=new JTextPane();
                     
                
                     JScrollPane er=new JScrollPane(comando1);               
@@ -267,6 +312,7 @@ private int tabs=2;
                     
 //                    comando1.setPreferredSize(new Dimension(630, 250));
                     ObtenerCursor(comando1);
+                   AutoCompletar(comando1);
                 
                 }    
 
@@ -282,22 +328,23 @@ private int tabs=2;
 
     private void pestañasComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_pestañasComponentShown
     // TODO add your handling code here:
-    for (Component component : pestañas.getComponents()) {
-        if (evt.getComponent().getName().equals(component.getName())) {
-            
-        }
-    }
+//    for (Component component : pestañas.getComponents()) {
+//        if (evt.getComponent().getName().equals(component.getName())) {
+//            
+//        }
+//    }
     }//GEN-LAST:event_pestañasComponentShown
 
     private void jMenu4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu4MouseClicked
         // TODO add your handling code here:
-      String texto=""; 
+       String texto="";
       JTextPane text=getTextArea();
        if(text!=null){
            texto=text.getText();
+        Analizar(texto);
        }
    
-       Analizar(texto);
+       
    
    
         
@@ -306,7 +353,7 @@ private int tabs=2;
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         // TODO add your handling code here:
-         JTextArea comando1=new JTextArea();
+         JTextPane comando1=new JTextPane();
                     
                
                     JScrollPane er=new JScrollPane(comando1);               
@@ -315,6 +362,7 @@ private int tabs=2;
                     tabs++;
 //                    comando1.setPreferredSize(new Dimension(630, 250));
                     ObtenerCursor(comando1);
+                    AutoCompletar(comando1);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
@@ -322,16 +370,37 @@ private int tabs=2;
          try{
              File archivo=null;
             for(File file:archivos){
-               for(Component pane:pestañas.getComponents()){
-                   if(pane instanceof JScrollPane){
-                       if(((JScrollPane)pane).getName().equals(file.getName())){
-                           archivo=file;
-                           break;
+                int index=pestañas.getSelectedIndex();
+               String pane=pestañas.getTitleAt(index);
+                  
+                    
+                       String nombreFile=file.getName();
+                       if(pane.equals(nombreFile)){
+//                             try {
+            
+            
+               archivo=file;
+            
+
+            // Si el archivo no existe es creado
+//            if (!file.exists()) {
+//                file.createNewFile();
+//            }
+//
+//            FileWriter fw = new FileWriter(file);
+//            BufferedWriter bw = new BufferedWriter(fw);
+//            bw.write(getTextArea().getText());
+//            bw.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//                           break;
+//                       }
                        }
-                   }
-                       
-               }
             }
+                       
+               
+            
     if(archivo!=null){
         String documento=getTextArea().getText();
         String mensaje=GuardarArchivo(archivo, documento);
@@ -385,6 +454,55 @@ private int tabs=2;
         this.dispose();
     }//GEN-LAST:event_jMenu3MouseClicked
 
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+        // TODO add your handling code here:
+        String datos="";
+        String contenido="<!DOCTYPE HTML5>\n" +
+"<html>\n" +
+"	<head>\n" +
+"		<title>Lista de Errores</title>\n" +
+"		<meta charset=\"utf-8\""+
+"	</head>\n" +
+"	<body><table border=\"1\"><caption>Listado de Errores<caption><tr>"
+                + "<th>No</th>"
+                + "<th>Tipo</th>"
+                + "<th>Descripción</th>"
+                + "<th>Fila</th>"
+                + "<th>Columna</th>"
+                + "</tr>";
+        for (int i = 0; i <lista_errores.size(); i++) {
+            CError error=lista_errores.get(i);
+            int num=i+1;
+            datos+="<tr><td>"+num+"</td>"
+                + "<td>"+error.tipo+"</td>"
+                + "<td>"+error.error+"</td>"
+                + "<td>"+error.linea+"</td>"
+                + "<td>"+error.columna+"</td>"
+                + "</tr>";
+        }
+        contenido+=datos+"</table>\n" +
+"	</body>\n" +
+"</html>";
+          try {
+
+            File file = new File ("Errores.html");
+            
+         if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(contenido);
+            bw.close();
+            Desktop.getDesktop().open(file);
+     }catch (IOException ex) {
+
+            System.out.println(ex);
+
+     }
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+
     private JTextPane getTextArea(){
    
        int index = pestañas.getSelectedIndex();
@@ -400,7 +518,7 @@ if(c instanceof JScrollPane){
           JViewport view=(JViewport) componente;
          Component[] comp1= view.getComponents();
          for(Component com1:comp1){
-             if(com1 instanceof JTextArea){
+             if(com1 instanceof JTextPane){
                  return ((JTextPane) com1);
 //                 encontrado=true;
 //                         
@@ -418,11 +536,19 @@ if(c instanceof JScrollPane){
      return null;
 }
     public void Analizar(String cmd){
+       lista_errores.clear();
       Analizadores.parser sintactico;
+      Analizadores.Scanner scanner;
+      
     AST arbol;
      try{
+         
+        scanner=new Analizadores.Scanner(new BufferedReader(new StringReader(cmd)));
+        scanner.pin.insertar(cmd);
+        getTextArea().setText("");
+        getTextArea().setDocument(scanner.pin.caja2.getDocument());
+        sintactico=new Analizadores.parser(scanner);
         
-        sintactico=new Analizadores.parser(new Analizadores.Lexico(new BufferedReader(new StringReader(cmd))));
         sintactico.parse();
         arbol=sintactico.AST;
         if(arbol!=null){
@@ -430,6 +556,7 @@ if(c instanceof JScrollPane){
             
         }else{
             System.out.println("-------------------------------------Existe un error en el analisis");
+            
         }
         
     }catch(IOException e){
@@ -437,8 +564,11 @@ if(c instanceof JScrollPane){
     } catch (Exception ex) {
         Logger.getLogger(Editor.class.getName()).log(Level.SEVERE, null, ex);
     }
+     if(!lista_errores.isEmpty()){
+         JOptionPane.showMessageDialog(null, "Existen errores. Revise el reporte de errores.");
+     }
 }
-     public String GuardarArchivo(File archivo, String documento){
+     private String GuardarArchivo(File archivo, String documento){
         String mensaje=null;
         try{
             FileOutputStream salida = new FileOutputStream(archivo);
@@ -502,8 +632,8 @@ if(c instanceof JScrollPane){
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTabbedPane pestañas;

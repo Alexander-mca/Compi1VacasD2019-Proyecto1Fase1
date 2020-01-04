@@ -9,6 +9,7 @@ import Arbol.Entorno.Entorno;
 import Arbol.Entorno.Tipo;
 import Arbol.Expresion;
 import Arbol.Expresiones.Literal;
+import Arbol.Objeto;
 import Interfaz.CError;
 import static Interfaz.Editor.lista_errores;
 
@@ -93,10 +94,31 @@ public class Diferenteque extends Expresion {
                     }
                     break;
                     //agregar tipos objeto en Fase2
+                     case objeto:
+                    Objeto obj1=(Objeto)res1.valor;
+                    switch(res2.tipo.tipo){
+                        case objeto:
+                            Objeto obj2=(Objeto)res2.valor;
+                            return ValidarObjeto(obj1,obj2);
+                        case nulo:
+                            return ValidarObjeto(obj1,null);
+                     }
+                        
+                    break;
+                case nulo:
+                    switch(res2.tipo.tipo){
+                        case nulo:
+                            return ValidarObjeto(null,null);
+                        case objeto:
+                            Objeto obj=(Objeto)res2.valor;
+                            return ValidarObjeto(null,obj);
+                    }
+                    break;
             }
-          System.out.println("Error Semantico: No es posible comparar los valores "+res1.tipo.tipo+" Tipo: "+tipo.tipo+" / "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
-            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nNo se puede comparar un "+res1.tipo.tipo+" con un "+res2.tipo.tipo, linea, columna);
+          System.out.println("Error Semantico: No es posible comparar los valores. "+res1.tipo.tipo+" != "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
+            CError error=new CError("Semantico", "Opción incorrecta:\nNo se puede comparar. "+res1.tipo.tipo+" != "+res2.tipo.tipo, linea, columna);
             lista_errores.add(error);
+             return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
         }
         return null;
     }
@@ -107,6 +129,14 @@ public class Diferenteque extends Expresion {
         } else {
             return new Literal(new Tipo(Tipo.EnumTipo.booleano), false);
         }
+    }
+ private Literal ValidarObjeto(Objeto a,Objeto b){
+         if (a.equals(b)) {
+            return new Literal(new Tipo(Tipo.EnumTipo.booleano), true);
+        } else {
+            return new Literal(new Tipo(Tipo.EnumTipo.booleano), false);
+        }
+        
     }
 
 }

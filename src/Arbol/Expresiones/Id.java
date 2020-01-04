@@ -24,13 +24,15 @@ public class Id extends Expresion {
      
      @Override
      public Expresion getValor(Entorno ent){
-         Simbolo sim=ent.buscar(id,linea,columna,"La variable");
+ 
+         Simbolo sim=ent.buscar(id,linea,columna,"La variable ");
          if(sim!=null){
              Literal retorno=new Literal(sim.tipo,sim.valor);
               retorno.id=id;
              return retorno;
-         }
+         }else{
          return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
+         }
      }
     
 }

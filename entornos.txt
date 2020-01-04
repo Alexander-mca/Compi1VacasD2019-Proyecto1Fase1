@@ -1,0 +1,8 @@
+digraph{node0[shape=plaintext label=<<table><tr><td>Tipo</td><td>Nombre</td><td>Valor</td></tr></table>>];
+node1[shape=plaintext label=<<table><tr><td>Tipo</td><td>Nombre</td><td>Valor</td></tr><tr><td>cadena</td><td>a</td><td>3 listo</td></tr>
+</table>>];
+node2[shape=plaintext label=<<table><tr><td>Tipo</td><td>Nombre</td><td>Valor</td></tr><tr><td>entero</td><td>a</td><td>0</td></tr>
+<tr><td>metodo</td><td>imprimir#cadena</td><td>Arbol.MetodosyFunciones.MDatos@53eda796</td></tr>
+</table>>];
+node3[shape=plaintext label=<<table><tr><td>Tipo</td><td>Nombre</td><td>Valor</td></tr></table>>];
+node0->node1;node1->node2;node2->node3;}

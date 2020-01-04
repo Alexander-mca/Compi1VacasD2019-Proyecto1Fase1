@@ -31,7 +31,7 @@ public class Xor extends Expresion{
     public Expresion getValor(Entorno ent) {
         Expresion res1=izq.getValor(ent);
         Expresion res2=der.getValor(ent);
-        if(res1!=null && res2!=null){
+        if(res1!=null ){
             switch(res1.tipo.tipo){
                 case booleano:
                     switch(res2.tipo.tipo){
@@ -53,9 +53,10 @@ public class Xor extends Expresion{
                     }
                     break;
             }
-            System.out.println("Error Semantico: No es posible comparar los valores "+res1.tipo.tipo+" Tipo: "+tipo.tipo+" / "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
-            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nNo se puede comparar un "+res1.tipo.tipo+" con un "+res2.tipo.tipo, linea, columna);
+            System.out.println("Error Semantico: No es posible comparar los valores, "+res1.tipo+" ^ "+res2.tipo+" Linea: "+linea +" Columna: "+columna);
+            CError error=new CError("Semantico", "Opción incorrecta:\nNo se puede comparar. "+res1.tipo+" || "+res2.tipo, linea, columna);
             lista_errores.add(error);
+             return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
         }
         return null;
     }

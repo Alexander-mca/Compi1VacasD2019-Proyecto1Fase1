@@ -36,16 +36,17 @@ public class Importar extends Instruccion{
     @Override
     public Object ejecutar(Entorno ent) {
         //enlazar los archivos, generar un AST  [archivo]-->[archivo]-->null
-        Expresion resultado=exp.getValor(ent);
+        Entorno actual=new Entorno(ent);
+        Expresion resultado=exp.getValor(actual);
         if(resultado!=null){
             try{
-            File file=new File(exp.valor.toString());
            
-            String ruta=file.getAbsolutePath();
-            
+           
+            String ruta="C:\\Users\\alexa\\Documents\\NetBeansProjects\\[Compi1VacasD2019]Proyecto1\\src\\"+exp.valor.toString();
             String texto="";
                 String aux="";
                 if(ruta.endsWith("NM")){
+                    File file=new File(ruta);
                    FileReader archivos=new FileReader(file);
                    BufferedReader lee=new BufferedReader(archivos);
                    while((aux=lee.readLine())!=null)
@@ -86,14 +87,16 @@ public class Importar extends Instruccion{
     
     private AST Analizar(String cmd){
          Analizadores.parser sintactico;
-    AST arbol = null;
+          Analizadores.Scanner scanner;
+    AST arbol;
      try{
-        
-        sintactico=new Analizadores.parser(new Analizadores.Lexico(new BufferedReader(new StringReader(cmd))));
+        scanner=new Analizadores.Scanner(new BufferedReader(new StringReader(cmd)));
+        sintactico=new Analizadores.parser(scanner);
         sintactico.parse();
         arbol=sintactico.AST;
         if(arbol!=null){
             arbol.Ejecutar();
+            return arbol;
             
         }else{
             System.out.println("-------------------------------------Existe un error en el analisis");
@@ -104,7 +107,7 @@ public class Importar extends Instruccion{
     } catch (Exception ex) {
         Logger.getLogger(Editor.class.getName()).log(Level.SEVERE, null, ex);
     }
-     return arbol;
+     return null;
     }
     
 }

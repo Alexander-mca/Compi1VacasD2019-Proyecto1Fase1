@@ -2,7 +2,8 @@
 
 package Analizadores;
 import java_cup.runtime.Symbol; 
-
+import Interfaz.ColorearPalabras;
+import java.awt.Color;
 
 
 /**
@@ -428,6 +429,7 @@ public class Lexico implements java_cup.runtime.Scanner {
 	String aux = "";
 
 
+
   /**
    * Creates a new scanner
    *
@@ -795,7 +797,7 @@ public class Lexico implements java_cup.runtime.Scanner {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
             { System.err.println("Este es un error lexico: "+yytext()+", en la linea: "+yyline+", en la columna: "+yychar);
-    //Interfaz.lista_errores.add(new CError("Léxico", "Caractér incorrecto '" + yytext() + "'", yyline, yychar));
+    Interfaz.Editor.lista_errores.add(new CError("Léxico", "Caractér incorrecto '" + yytext() + "'", yyline, yychar));
             } 
             // fall through
           case 88: break;

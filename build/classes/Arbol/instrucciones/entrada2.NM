@@ -1,0 +1,9 @@
+class Persona {
+int edad;
+Persona () {
+print("A dormir");
+}
+Persona (int edad){
+//this.edad = edad;
+}
+}

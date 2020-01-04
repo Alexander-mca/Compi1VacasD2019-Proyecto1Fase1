@@ -8,6 +8,7 @@ package Arbol.instrucciones;
 import Arbol.Entorno.Entorno;
 import Arbol.Expresion;
 import Arbol.Instruccion;
+import Arbol.MetodosyFunciones.Return;
 import Arbol.Nodo;
 import java.util.LinkedList;
 
@@ -27,15 +28,17 @@ public class Bloque extends Instruccion{
     public Object ejecutar(Entorno ent) {
         
         for(Nodo instruccion:intruccion){
-            if(instruccion instanceof Instruccion){
-          Object obj= ((Instruccion)instruccion).ejecutar(ent);
-           if(obj instanceof Break || obj instanceof Continue){
-                return obj;
-            }
-        }else if(instruccion instanceof Expresion){
+           if(instruccion instanceof Expresion){
            ((Expresion)instruccion).getValor(ent);
             
-//            return exp;
+        }else if(instruccion instanceof Return){
+            Object obj=((Instruccion)instruccion).ejecutar(ent);
+            return obj;
+        }else{
+             Object obj= ((Instruccion)instruccion).ejecutar(ent);
+           if(obj instanceof Break || obj instanceof Continue ){
+                return obj;
+            }
         }
         }
         return null;

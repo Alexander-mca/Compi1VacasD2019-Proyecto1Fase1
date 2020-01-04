@@ -5,6 +5,8 @@
  */
 package Arbol.Entorno;
 
+import Interfaz.CError;
+import static Interfaz.Editor.lista_errores;
 import java.util.HashMap;
 
 /**
@@ -14,18 +16,25 @@ import java.util.HashMap;
 public class Entorno {
 
     public Entorno anterior;
+    public Entorno Global;
+   public String nombre;
     public HashMap<String, Simbolo> tabla;
 
     public Entorno(Entorno anterior) {
         this.anterior = anterior;
         this.tabla = new HashMap<>();
+        
     }
 
     public void insertar(String nombre, Simbolo sim, int linea, int columna, String cadenaerror) {
+        
         if (tabla.containsKey(nombre)) {
-            System.out.println("Error Semantico:" + cadenaerror + " '" + nombre + "'ya existe");
+       
+            System.out.println("Error Semantico:" + cadenaerror + " '" + nombre + "' ya existe"+" Linea:"+linea+" Columna:"+columna);
+            lista_errores.add(new CError(Tipo.EnumTipo.error.toString(),"Error Semantico: "+cadenaerror+" '"+nombre+"' ya existe",linea,columna));
             return;
         }
+        
         tabla.put(nombre, sim);
     }
 
@@ -45,7 +54,7 @@ public class Entorno {
 //            Simbolo sim=e.tabla.get(nombre);
 //            return sim;
 //        }
-        System.out.println("Error Semántico" + cadenaerror + " '" + nombre + "' No existe");
+        System.out.println("Error Semántico " + cadenaerror + " '" + nombre + "' No existe Linea:"+linea+" Columna: "+columna);
         return null;
     }
 }

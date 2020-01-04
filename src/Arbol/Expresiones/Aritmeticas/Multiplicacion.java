@@ -71,7 +71,7 @@ String operacion;
                         case entero:                            
                             return new Literal(res2.tipo,ascii*Integer.parseInt(res2.valor.toString()));
                         case doble:
-                            return new Literal(res1.tipo,ascii*Double.parseDouble(res2.valor.toString()));
+                            return new Literal(res2.tipo,ascii*Double.parseDouble(res2.valor.toString()));
                         case caracter:
                             int asc2=(int)res2.valor.toString().charAt(0);
                             return new Literal(new Tipo(Tipo.EnumTipo.entero),ascii*asc2);
@@ -81,9 +81,10 @@ String operacion;
 
             }
         
-        System.out.println("Error Semantico: El tipo de valores que se quieren multiplicar no son iguales "+res1.tipo.tipo+" Tipo: "+tipo.tipo+" / "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
-            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nNo se puede multiplicar un "+res1.tipo.tipo+" con un "+res2.tipo.tipo, linea, columna);
+        System.out.println("Error Semantico: El tipo de valores que se quieren multiplicar no son iguales Tipo: "+res1.tipo.tipo+" * "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
+            CError error=new CError("Semantico", "Opción incorrecta:\nNo se puede multiplicar un "+res1.tipo.tipo+" con un "+res2.tipo.tipo, linea, columna);
             lista_errores.add(error);
+            return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
         }
        return null;
     }

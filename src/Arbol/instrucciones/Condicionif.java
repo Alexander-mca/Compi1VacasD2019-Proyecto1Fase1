@@ -28,12 +28,13 @@ public class Condicionif extends Instruccion{
     }
     @Override
     public Object ejecutar(Entorno ent) {
-        Expresion val=exp.getValor(ent);
+        Entorno actual=new Entorno(ent);
+        Expresion val=exp.getValor(actual);
        
         Boolean ejecutado=false;
         if(Boolean.parseBoolean(val.valor.toString())){
             ejecutado=true;
-         Object obj= bloque.ejecutar(ent);
+         Object obj= bloque.ejecutar(actual);
             if(obj instanceof Break || obj instanceof Continue){
                 //a++; 
                 return obj;

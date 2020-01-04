@@ -30,27 +30,41 @@ public class Or extends Expresion{
     @Override
     public Expresion getValor(Entorno ent) {
         Expresion res1=izq.getValor(ent);
-        Expresion res2=der.getValor(ent);
-        if(res1!=null && res2!=null){
-            switch(res1.tipo.tipo){
+        Expresion res2 = null;
+
+        if(res1!=null){
+            switch (res1.tipo.tipo) {
+                //modificar el or, agregar el corto circuito
                 case booleano:
-                    switch(res2.tipo.tipo){
-                        case booleano:
-                            if(Boolean.parseBoolean(res1.valor.toString())){
-                                return new Literal(res2.tipo,true);
-                            }else{
-                                if(Boolean.parseBoolean(res2.valor.toString())){
-                                 return new Literal(res2.tipo,true);
-                                }else{
-                                     return new Literal(res2.tipo,false);
-                                }
-                            }
+//                    switch(res2.tipo.tipo){
+//                        case booleano:
+//                            if(Boolean.parseBoolean(res1.valor.toString())){
+//                                return new Literal(res2.tipo,true);
+//                            }else{
+//                                if(Boolean.parseBoolean(res2.valor.toString())){
+//                                 return new Literal(res2.tipo,true);
+//                                }else{
+//                                     return new Literal(res2.tipo,false);
+//                                }
+//                            }
+//                    }
+                    if (Boolean.parseBoolean(res1.valor.toString())) {
+                        return new Literal(res1.tipo, true);
+                    } else {
+                        res2=der.getValor(ent);
+                        if (Boolean.parseBoolean(res2.valor.toString())) {
+                            return new Literal(res2.tipo, true);
+                        } else {
+                            return new Literal(res2.tipo, false);
+                        }
                     }
-                    break;
+
             }
-            System.out.println("Error Semantico: No es posible comparar los valores "+res1.tipo.tipo+" Tipo: "+tipo.tipo+" / "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
-            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nNo se puede comparar un "+res1.tipo.tipo+" con un "+res2.tipo.tipo, linea, columna);
+            
+            System.out.println("Error Semantico: No es posible comparar los valores. "+res1.tipo.tipo+" || "+res2.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
+            CError error=new CError("Semantico", "Opción incorrecta:\nNo se puede comparar. "+res1.tipo.tipo+" || "+res2.tipo.tipo, linea, columna);
             lista_errores.add(error);
+             return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
         }
         return null;
     }

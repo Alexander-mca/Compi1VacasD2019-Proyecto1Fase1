@@ -5,6 +5,7 @@
  */
 package Arbol.Entorno;
 
+
 import Arbol.Nodo;
 
 /**
@@ -13,10 +14,12 @@ import Arbol.Nodo;
  */
 public class Simbolo extends Nodo{
     public Tipo tipo;
+    
     public Object valor;
     
     public Simbolo(Tipo tipo,Object valor){
         this.tipo=tipo;
         this.valor=valor;
     }
+    
 }

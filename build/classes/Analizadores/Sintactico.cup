@@ -3,7 +3,7 @@ package Analizadores;
 import java_cup.runtime.*;
 import java.util.LinkedList;
 import Arbol.Entorno.Tipo;
-
+import Interfaz.CError;
 import Arbol.Expresion;
 import Arbol.AST;
 import Arbol.Instruccion;
@@ -16,6 +16,9 @@ import Arbol.Expresiones.Aritmeticas.*;
 import Arbol.Expresiones.relacionales.*;
 import Arbol.Expresiones.Logicas.*;
 import Arbol.instrucciones.*;
+import Arbol.MetodosyFunciones.*;
+import Arbol.Objetos.*;
+import Arbol.Arreglos.*;
 
 
 
@@ -26,14 +29,14 @@ parser code
 
     /* Variable que guarda el árbol de sintáxis abstracta generado luego del análisis sintáctico */
     public AST AST;
-    
+   //public int profundidad=0;
     /**
      * Método al que se llama automáticamente ante algún error sintactico.
      **/ 
     public void syntax_error(Symbol s){ 
             System.err.println("Error Sintáctico en la Línea " + (s.left) +" Columna "+s.right+ ". No se esperaba este componente: " +s.value+".");
 
-            //Interfaz.lista_errores.add(new CError("Sintáctico", "No se esperaba este componente '" + s.value + "'", s.left, s.right));
+           Interfaz.Editor.lista_errores.add(new CError("Sintáctico", "No se esperaba este componente '" + s.value + "'", s.left, s.right));
     
     } 
     /**
@@ -47,17 +50,19 @@ parser code
 terminal String mas,menos,por,division,potencia,parizquierdo,parderecho,igual,puntoycoma,llaveizq,llaveder,rint,rdouble,rchar,rboolean,rstring,rclass,coma,rvoid;
 terminal String entero,doble,rtrue,rfalse,cadena,caracter,id,rprintln,rprint,rprinttabla;
 terminal String menorque,mayorque,menorigualque,mayorigualque,igualigual,diferenteque,or,and,xor,not,rif,relse,rwhile,rbreak,rcontinue,modulo,rfor,rdo,rswitch,rcase,rdefault,dospuntos,interrogacion,masmas,menosmenos,rpow,rreturn,corizquierdo,corderecho,rnew,rpublic,rprotected,rprivate,rabstract,rstatic,rfinal,rstr,rtoDouble,rtoInt,rtoChar,rextends,punto,rthis,rnull,rimport,
-rgraph,rsuper,rread_file,rwrite_file,rinstanceof,rread;
+rgraph,rsuper,rread_file,rwrite_file,rinstanceof,rread,graphdot,graphentornos;
 
 terminal umenos; //Para manejar el - E
 
 non terminal INICIO;
-non terminal LinkedList<Nodo> L_INSTRUCCIONES;
-non terminal Instruccion INSTRUCCION,DECLARACION,ASIGNACION, IMPRIMIR, SENTENCIA_IF, SENT_WHILE, BREAK, CONTINUE,SENT_DOWHILE, SENT_FOR, SENT_SWITCH,FORD,CASOS,SENT_IMPORT;
+non terminal LinkedList<Nodo> L_INSTRUCCIONES,L_CASOS,VARIABLES,PARAMETROS,L_PRINCIPAL,L_CLASE,X,PROF,BLOQUEF;
+non terminal Instruccion INSTRUCCION,DECLARACION,ASIGNACION,INSTCLASE, ARREGLO,INSTOBJETO,GRAFICAR, CLASE, IMPRIMIR,INST, SENTENCIA_IF, SENT_WHILE, BREAK, CONTINUE,SENT_DOWHILE, SENT_FOR, SENT_SWITCH,FORD,CASOS,SENT_IMPORT,METODO,FUNCION,FUNCIONA,FUNCIONB,RETURN,CONSTRUCT;
 non terminal Nodo FORAUM;
-non terminal Expresion E,M,VALORES;
+non terminal Expresion E,M,VALORES,LLAMADA,ACCESO,N,A,LLAMA;
 non terminal Bloque BLOQUE,BLOQUECASE;
-non terminal LinkedList<Instruccion> L_CONDICIONES,L_CASOS;
+non terminal LinkedList<String> PROFUNDIDAD;
+//non terminal String FUN;
+non terminal LinkedList<Instruccion> L_CONDICIONES;
 
 
 non terminal Tipo T;
@@ -71,23 +76,25 @@ precedence right interrogacion,dospuntos;
 precedence left or;
 precedence left and;
 precedence left xor;
-precedence right not;
+
 
 precedence left menorque,menorigualque,mayorque,mayorigualque,igualigual,diferenteque;
 
 precedence left mas,menos;
 precedence left por,division,modulo;
 precedence left potencia;
-precedence left parizquierdo,parderecho;
-//precedence left masmas,menosmenos; //Así lo tenía antes
+//precedence right not;
+precedence right masmas,menosmenos,not;
+precedence left parizquierdo,parderecho,punto;
+ //Así lo tenía antes
 
-precedence left punto; //Para los accesos
+ //Para los accesos
 
 precedence left umenos;
 
 start with INICIO; 
 
-INICIO::= L_INSTRUCCIONES:a
+INICIO::= L_PRINCIPAL:a
     {:
     //se guarda el AST, que es la lista principal de instrucciones en la variable
     //AST que se definió dentro del parser
@@ -96,43 +103,128 @@ INICIO::= L_INSTRUCCIONES:a
     :}
 ;
 
+L_PRINCIPAL::= L_PRINCIPAL:a INST:b {:RESULT=a;RESULT.add(b);:}
+                | INST:a {:RESULT=new LinkedList<>(); RESULT.add(a);:}
+;
+INST::=CLASE:a {:RESULT=a;:}
+        |SENT_IMPORT:a{:RESULT=a;:}
+;
+CLASE::= rclass id:a llaveizq L_CLASE:b llaveder {:RESULT=new Clase(b,a);:}
+;
+L_CLASE::= L_CLASE:a INSTCLASE:b {:RESULT=a;RESULT.add(b);:}
+            | INSTCLASE:a {:RESULT=new LinkedList<>(); RESULT.add(a);:}
+;
+INSTCLASE::= DECLARACION:a puntoycoma {:RESULT=a;:}
+            |METODO:a {:RESULT=a;:}
+            |FUNCION:a {:RESULT=a;:}
+            | CONSTRUCT:a{:RESULT=a;:}
+;
+CONSTRUCT::= id:a parizquierdo VARIABLES:b parderecho BLOQUE:c{:RESULT=new Constructor(a,b,c);:}
+            | id:a parizquierdo parderecho BLOQUE:b{:RESULT=new Constructor(a,null,b);:}
+;
+FUNCION::= T:a PROFUNDIDAD:b id:c BLOQUEF:d BLOQUE:e {:RESULT=new Funcion(a.tipo.toString(),b,c,d,e);:}
+           |T:a  id:b BLOQUEF:c BLOQUE:d {:RESULT=new Funcion(a.tipo.toString(),null,b,c,d);:} 
+           |id:a PROFUNDIDAD:b id:c BLOQUEF:d BLOQUE:e {:RESULT=new Funcion(a,b,c,d,e);:}
+           |id:a  id:b BLOQUEF:c BLOQUE:d {:RESULT=new Funcion(a,null,b,c,d);:}  
+;
+//FUN::= T:a {:RESULT=a.tipo.toString();:}
+//        |id:a {:RESULT=a;:}
+//;
 
+BLOQUEF::= parizquierdo VARIABLES:a parderecho {:RESULT=a;:}
+            |parizquierdo parderecho {:RESULT=null;:}
+;
 L_INSTRUCCIONES ::= L_INSTRUCCIONES:a INSTRUCCION:b {: RESULT=a;RESULT.add(b); :}
                             | INSTRUCCION:a {: RESULT=new LinkedList<>(); RESULT.add(a);:}
                             | L_INSTRUCCIONES:a M:b puntoycoma {:RESULT=a;RESULT.add(b);:}
                             | M:a puntoycoma {: RESULT=new LinkedList<>(); RESULT.add(a);:}
+                            | L_INSTRUCCIONES:a LLAMADA:b puntoycoma {:RESULT=a;RESULT.add(b);:}
+                            | LLAMADA:a puntoycoma {: RESULT=new LinkedList<>(); RESULT.add(a);:}
 ;
-L_CASOS ::=L_CASOS:a CASOS:b {: RESULT=a;RESULT.add(b); :}
+L_CASOS ::=L_CASOS:a rcase VALORES:b dospuntos L_INSTRUCCIONES:c {:Caso caso=new Caso(b,new Bloque(c));a.add(caso); RESULT=a;:}
+            |L_CASOS:a rdefault dospuntos L_INSTRUCCIONES:b{:Default defualt=new Default(new Bloque(b));a.add(defualt); RESULT=a;:}
           | CASOS:a {: RESULT=new LinkedList<>(); RESULT.add(a);:}
 ;
-INSTRUCCION ::= FORD:a puntoycoma {: RESULT=a; :}
+INSTRUCCION ::= DECLARACION:a puntoycoma {: RESULT=a; :}
+            | RETURN:a {:RESULT=a;:}
+            | INSTOBJETO:a puntoycoma {:RESULT=a;:}
+            | ASIGNACION:a puntoycoma {: RESULT=a; :}
             | IMPRIMIR:a puntoycoma{: RESULT=a; :}
             | SENTENCIA_IF:a {:RESULT=a;:}
+            | ARREGLO:a puntoycoma {:RESULT=a;:}
             | SENT_WHILE:a {:RESULT=a;:}
             | SENT_DOWHILE:a {:RESULT=a;:}
             | BREAK:a {:RESULT=a;:}
             | CONTINUE:a {:RESULT=a;:}
             | SENT_FOR:a {:RESULT=a;:}
             | SENT_SWITCH:a {:RESULT=a;:}   
-            | SENT_IMPORT:a {:RESULT=a;:}
+            //| SENT_IMPORT:a {:RESULT=a;:}
+            | GRAFICAR:a  puntoycoma {:RESULT=a;:}
+            //| ACCESO:a 
+             //|METODO:a {:RESULT=a;:}
+           // | LLAMADA:a puntoycoma{:RESULT=a;:}
             
 ;
-
+ARREGLO::= T:a PROFUNDIDAD:b id:c igual A:d {:RESULT=new DeclararArreglo(b,c,a.tipo.toString(),d,aleft,aright);:}
+           |T:a PROFUNDIDAD:b id:c igual rnew T:d PROF:e{:RESULT=new DeclararArreglo(b,e,c,a.tipo.toString(),d.toString(),aleft,aright);:}
+           |T:a PROFUNDIDAD:b id:c igual LLAMADA:d {:RESULT=new DeclararArreglo(b,c,a.tipo.toString(),d,aleft,aright);:}
+           |T:a PROFUNDIDAD:b id:c igual ACCESO:d {:RESULT=new DeclararArreglo(b,c,a.tipo.toString(),d,aleft,aright);:}
+           |id:a PROFUNDIDAD:b id:c igual A:d {:RESULT=new DeclararArreglo(b,c,a,d,aleft,aright);:}
+           |id:a PROFUNDIDAD:b id:c igual rnew id:d PROF:e{:RESULT=new DeclararArreglo(b,e,c,a,d,aleft,aright);:}
+           |id:a PROFUNDIDAD:b id:c igual LLAMADA:d {:RESULT=new DeclararArreglo(b,c,a,d,aleft,aright);:}
+           |id:a PROFUNDIDAD:b id:c igual ACCESO:d {:RESULT=new DeclararArreglo(b,c,a,d,aleft,aright);:}
+; 
+PROFUNDIDAD::= PROFUNDIDAD:a corizquierdo:b corderecho:c {:a.add(b+c);RESULT=a;:}
+                |corizquierdo:a corderecho:b {:RESULT=new LinkedList<>();RESULT.add(a+b);:}
+;
+INSTOBJETO::= id:a id:b igual E:c {:RESULT=new Instancia(b,a,c);:}
+               | id:a id:b {:RESULT=new Instancia(b,a);:}
+               
+;
+ACCESO::= id:a punto LLAMA:b{:RESULT=new Acceso(a,b,aleft,aright);:} 
+            
+           // | rthis:a punto id:b igual E:c{::}
+            //| id:a punto LLAMADA: {:RESULT=new Acceso(a,b,aleft,aright);:}
+            | rthis:a punto LLAMA:b {:RESULT=new Acceso(a,b,aleft,aright);:}
+            //| rthis:a punto id:b {:RESULT=new Acceso(a,b,aleft,aright);:}
+;
+LLAMA::= id:a parizquierdo PARAMETROS:b parderecho {:RESULT=new Llamada(a,b);:}
+        |id:a parizquierdo parderecho {:RESULT=new Llamada(a,null);:}
+        |id:a {:RESULT=new Id(a,aleft,aright);:}
+;
+METODO::=rvoid id:a parizquierdo VARIABLES:b parderecho BLOQUE:c{:RESULT=new Metodo(b,c,a);:}
+            |rvoid id:a parizquierdo  parderecho BLOQUE:c{:RESULT=new Metodo(null,c,a);:}
+;
+VARIABLES::= VARIABLES:a coma T:b id:c{:Declaracion d=new Declaracion(b,c,cleft,cright); a.add(d); RESULT=a;:}
+            |T:a id:b {:Declaracion d=new Declaracion(a,b,bleft,bright); LinkedList<Nodo> list=new LinkedList<>(); list.add(d); RESULT=list; :}
+;
+GRAFICAR::= graphdot parizquierdo E:a coma E:b parderecho {:RESULT=new GraficarDot(a,b);:}
+            | graphentornos parizquierdo parderecho {:RESULT=new GraficarEntorno();:}
+;
 
 DECLARACION ::= 
         T:a id:b igual E:c {: RESULT=new Declaracion(a,b,c,bleft,bright); :}
         | T:a id:b {:  RESULT=new Declaracion(a,b,bleft,bright); :}
+       
 ;
 FORD::= DECLARACION:a {:RESULT=a;:}
         | ASIGNACION:a {:RESULT=a;:}
 ;
 ASIGNACION ::= 
                 id:a igual E:b {: RESULT=new Asignacion(a,aleft,aright,b); :}
+                | id:a punto id:b igual E:c {:RESULT=new AsignarAcceso(a,b,c,aleft,aright);:}
+                | rthis:a punto id:b igual E:c {:RESULT=new AsignarAcceso(a,b,c,aleft,aright);:}
+               //| id:a igual LLAMADA:b {:RESULT=new Asignacion(a,aleft,aright,b);:}
                 //|id:a igual DERK:b {: RESULT=new Asignacion(a,aleft,aright,b); :}
                 //| id:a L_DIMENSIONES_EXPRESION:b igual E:c {: RESULT = new AsignacionArreglo(a,aleft,aright,b,c); :}
 ;
-
-T ::= rint:a {: RESULT=new Tipo(Tipo.EnumTipo.entero); :}
+PARAMETROS::= E:a {:LinkedList<Nodo> lista=new LinkedList<>();lista.add(a); RESULT=lista;:}
+              |PARAMETROS:a coma E:b {:a.add(b); RESULT=a;:}
+;
+LLAMADA::= id:a parizquierdo PARAMETROS:b parderecho {:RESULT=new Llamada(a,b);:}
+              | id:a parizquierdo  parderecho  {:RESULT=new Llamada(a,null);:}
+;
+T ::= rint {: RESULT=new Tipo(Tipo.EnumTipo.entero); :}
     | rchar {: RESULT=new Tipo(Tipo.EnumTipo.caracter); :}
     | rboolean {: RESULT=new Tipo(Tipo.EnumTipo.booleano); :}
     | rdouble {: RESULT=new Tipo(Tipo.EnumTipo.doble); :}
@@ -154,16 +246,19 @@ BLOQUE::= llaveizq llaveder {:RESULT=null;:}
             | llaveizq L_INSTRUCCIONES:a llaveder {:RESULT=new Bloque(a);:}
             
 ;
+RETURN::= rreturn E:a puntoycoma{:RESULT=new Return(a);:}
+           | rreturn puntoycoma{:RESULT=new Return(null);:}
+;
 //BLOQUECASE ::= llaveizq llaveder {:RESULT=null;:}
  //           | llaveizq L_CASOS:a llaveder {:RESULT=new Bloque(a);:}
 //;
 CASOS ::=  rcase VALORES:b dospuntos L_INSTRUCCIONES:c {:RESULT=new Caso(b,new Bloque(c));:}
-            | rdefault dospuntos L_INSTRUCCIONES:b {:RESULT=new Default(new Bloque(b));:}
+            |rdefault dospuntos L_INSTRUCCIONES:b {:RESULT=new Default(new Bloque(b));:}
 ;
-SENT_SWITCH ::= rswitch parizquierdo id:a parderecho llaveizq L_CASOS:b llaveder {:RESULT=new Switch(new Id(a, aleft,aright),b);:}
+SENT_SWITCH ::= rswitch parizquierdo id:a parderecho llaveizq L_CASOS:b llaveder {:RESULT=new Switch(new Id(a, aleft,aright),new Bloque(b));:}
                 |rswitch parizquierdo id:a parderecho llaveizq  llaveder {:RESULT=new Switch(new Id(a, aleft,aright),null);:}
 ;
-SENT_FOR ::= rfor parizquierdo FORD:a puntoycoma E:b puntoycoma E:c parderecho BLOQUE:d {:RESULT=new For(a,b,c,d);:}
+SENT_FOR ::= rfor parizquierdo FORD:a puntoycoma E:b puntoycoma FORAUM:c parderecho BLOQUE:d {:RESULT=new For(a,b,c,d);:}
                
 ;
 FORAUM::= ASIGNACION:a {:RESULT=a;:}
@@ -187,22 +282,24 @@ VALORES ::= entero:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.entero), a);
         | rfalse {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.booleano), false); :}
         | doble:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.doble), a); :}
         | cadena:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.cadena), a.replace("\"","")); :}
+        | rnull:a {:RESULT=new Literal(new Tipo(Tipo.EnumTipo.nulo),a);:}
         //| cadena:a {: RESULT = new Literal(new Tipo(Tipo.EnumTipo.cadena), a); :}
 
 ;
 SENT_IMPORT ::= rimport cadena:a puntoycoma {:RESULT=new Importar(new Literal(new Tipo(Tipo.EnumTipo.cadena),a));:} 
 ;
 E ::=   VALORES:a {:RESULT=a;:}
+        | rnew id:a parizquierdo PARAMETROS:b parderecho {:RESULT=new CrearObjeto(a,b);:}
+        | rnew id:a parizquierdo parderecho{:RESULT=new CrearObjeto(a);:}
         | E:a mas E:b {: RESULT=new Suma(aleft,aright,a,b); :}
         | E:a por E:b  {: RESULT=new Multiplicacion(aleft,aright,a,b); :}
-        | parizquierdo E:a parderecho {:RESULT=a;:}
+        | parizquierdo E:a parderecho {:RESULT=a;:}   
         | E:a division E:b  {: RESULT=new Division(aleft,aright,a,b); :}
-        | umenos E:a {:RESULT=a;:}
+        | menos E:a {:RESULT=new Unmenos(a,aleft,aright);:}
         | M:a {:RESULT=a;:}
         | E:a menos E:b {:RESULT=new Resta(aleft,aright,a,b);:}
         | E:a modulo E:b  {: RESULT=new Modulo(aleft,aright,a,b); :}
-        | E:a potencia E:b  {: RESULT=new Potencia(aleft,aright,a,b); :}
-        | id:a {: RESULT = new Id(a, aleft,aright); :}
+        | E:a potencia E:b  {: RESULT=new Potencia(aleft,aright,a,b); :}        
         | E:a mayorque E:b {: RESULT=new Mayorque(aleft,aright,a,b);:}
         | E:a menorque E:b {: RESULT=new Menorque(aleft,aright,a,b);:}
         | E:a mayorigualque E:b {: RESULT=new Mayorigual(aleft,aright,a,b);:}
@@ -213,7 +310,32 @@ E ::=   VALORES:a {:RESULT=a;:}
         | E:a and E:b {: RESULT=new And(aleft,aright,a,b);:}
         | E:a xor E:b {: RESULT=new Xor(aleft,aright,a,b);:}
         | not:a E:b {: RESULT=new Not(aleft,aright,b);:}
+        | id:a PROF:b punto LLAMA:c {:RESULT=new AccesoArreglo(b,a,c);:}   
+        | id:a PROF:b {:RESULT=new AccesoArreglo(b,a,null);:}
+        | id:a {: RESULT = new Id(a, aleft,aright); :}
+        | N:a {:RESULT=a;:}
+        
+       
+        
+        
 ;
-M ::= E:a masmas {:RESULT=new Aumento(a);:}
-        | E:a menosmenos {:RESULT=new Decremento(a);:}
+PROF::= PROF:a corizquierdo VALORES:b corderecho {:RESULT=a;RESULT.add(b);:}
+        | corizquierdo VALORES:a corderecho {:RESULT=new LinkedList<>();RESULT.add(a);:}
+;
+A::= llaveizq X:a llaveder{:RESULT=new CrearArreglo(a);:}
+;
+X::= X:a coma E:b {:a.add(b); RESULT=a;:}
+    |X:a coma A:b {:a.add(b); RESULT=a;:}
+    |E:a {:RESULT=new LinkedList<>(); RESULT.add(a);:}
+    |A:a {:RESULT=new LinkedList<>(); RESULT.add(a);:}
+;
+//K::= coma E:a K:b {::}
+//   | coma A {::}  
+//;
+N::=LLAMADA:a {:RESULT=a;:}
+        | ACCESO:a {:RESULT=a;:}
+;
+M ::= id:a masmas {:RESULT=new Aumento(a);:}
+        | id:a menosmenos {:RESULT=new Decremento(a);:}
+       
 ;

@@ -40,9 +40,10 @@ public class Not extends Expresion{
            
             
         }
-             System.out.println("Error Semantico: No es posible realizar la operación. "+resultado.tipo.tr+" Tipo: "+resultado.tipo+". Solo se puede con valores booleanos. Linea:"+linea+" Columna:"+columna);
-            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nNo se puede realizar la operacion "+resultado.valor+" no es booleano ", linea, columna);
+             System.out.println("Error Semantico: No es posible realizar la operación. !"+resultado.tipo+". Solo se puede con valores booleanos. Linea:"+linea+" Columna:"+columna);
+            CError error=new CError("Semantico", "Opción incorrecta:\nNo se puede realizar la operacion "+resultado.valor+" no es booleano ", linea, columna);
             lista_errores.add(error);
+             return new Literal(new Tipo(Tipo.EnumTipo.error),"@Error@");
         }
         return null;
     }

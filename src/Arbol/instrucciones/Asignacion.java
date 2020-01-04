@@ -9,6 +9,8 @@ import Arbol.Entorno.Entorno;
 import Arbol.Entorno.Simbolo;
 import Arbol.Expresion;
 import Arbol.Instruccion;
+import Interfaz.CError;
+import static Interfaz.Editor.lista_errores;
 
 /**
  *
@@ -82,12 +84,10 @@ public class Asignacion extends Instruccion {
                 case cadena:
                      switch(resultado.tipo.tipo){
                         case caracter:
-                            sim.valor=String.valueOf(resultado.valor);
-                          
+                            sim.valor=String.valueOf(resultado.valor);               
                    
                             return null;
-                        case cadena:
-                        
+                        case cadena:                    
                       
                             sim.valor=resultado.valor;
                             
@@ -95,8 +95,8 @@ public class Asignacion extends Instruccion {
                     }
                     break;
             }
-            System.out.println("El tipo de dato que se le quiere asignar a la variable "+id+" es incorrecto"+" Tipo:"+sim.tipo+" !=" +resultado.tipo);
-                   
+            System.out.println("El tipo de dato que se le quiere asignar a la variable "+id+" es incorrecto"+" Tipo:"+sim.tipo.tipo+" !=" +resultado.tipo);
+              lista_errores.add(new CError("Semantico","El tipo de dato que quiere asignar ala variable "+id+" es incorrecto"+" Tipo:"+sim.tipo.tipo+" !=" +resultado.tipo,linea,columna));    
         }
         return null;
     }

@@ -10,23 +10,34 @@ import Arbol.Entorno.Simbolo;
 import Arbol.Entorno.Tipo;
 import Arbol.Expresion;
 import Arbol.Instruccion;
+import Arbol.MetodosyFunciones.Llamada;
+import Arbol.Nodo;
+import Arbol.Objeto;
+import Interfaz.CError;
+import static Interfaz.Editor.lista_errores;
+import java.util.LinkedList;
 
 /**
  *
  * @author alexa
  */
 public class Declaracion extends Instruccion{
-    Tipo tipo;
-   String id;
+   public  Tipo tipo;
+   public String id;
     public Expresion valor;
+    LinkedList<Nodo> parametros;
+    
 
-    public Declaracion(Tipo tipo,String id, Expresion valor,int linea,int columna) {
+    
+
+
+    public Declaracion(Tipo tipo, String id, Expresion valor, int linea, int columna) {
         this.tipo = tipo;
         this.id = id;
         this.valor = valor;
-        this.columna=columna;
-                this.linea=linea;
-                
+        this.columna = columna;
+        this.linea = linea;
+
     }
     
     public Declaracion(Tipo tipo, String id,int linea,int columna){
@@ -40,7 +51,7 @@ public class Declaracion extends Instruccion{
     public Object ejecutar(Entorno ent){
         if(valor!=null){
             Expresion resultado=valor.getValor(ent);
-            
+           
             Simbolo simbolo;
             switch(tipo.tipo){
                 case entero:
@@ -119,30 +130,42 @@ public class Declaracion extends Instruccion{
                             
                     }
                     break;
+                
             }
-            System.out.println("Error Semantico: El tipo de valor que se le quiere asignar a la variable "+id+" Tipo: "+tipo.tipo+" / "+resultado.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
+            
+            System.out.println("Error Semantico: El tipo de valor que se le quiere asignar a la variable "+id+" Tipo: "+tipo.tipo+" un valor Tipo: "+resultado.tipo.tipo+" Linea: "+linea +" Columna: "+columna);
+            lista_errores.add(new CError("Semantico","No se le puede asignar a la variable '"+id+"' un valor Tipo:"+resultado.tipo.tipo,linea,columna));
         }else{
+            if(tipo!=null){
             switch(tipo.tipo){
                 case entero:
+                  
                     ent.insertar(id,new Simbolo(tipo,0),linea,columna,"La variable");
-                    break;
+                    return null;
                 case caracter:
                     ent.insertar(id,new Simbolo(tipo,'\0'),linea,columna,"La variable");
-                    break;
+                    return null;
                 case booleano:
                     ent.insertar(id,new Simbolo(tipo,false),linea,columna,"La variable");
-                    break;
+                    return null;
                 case doble:
                     ent.insertar(id,new Simbolo(tipo,0.0),linea,columna,"La variable");
-                    break;
+                    return null;
                 case cadena:
                     ent.insertar(id,new Simbolo(tipo,""),linea,columna,"La variable");
-                    break;
+                    return null;
                     
                             }
+            }
         }
+        
+        
         return null;
     }
     
+        
+    
+
+
     
 }
