@@ -6,6 +6,7 @@
 package Arbol.instrucciones;
 
 import Arbol.Entorno.Entorno;
+import Arbol.Expresion;
 import Arbol.Instruccion;
 import java.util.LinkedList;
 
@@ -26,10 +27,16 @@ public class If extends Instruccion{
     public Object ejecutar(Entorno ent) {
         boolean ejecutado=true;
         Entorno actual=new Entorno(ent);
+        if(ent.Global!=null){
+            actual.Global=ent.Global;
+        }
         for(Instruccion condicion: lista_condiciones){
            Object obj= condicion.ejecutar(actual);
             if(Boolean.parseBoolean(obj.toString())){
                 ejecutado=false;
+                if(obj instanceof Expresion){
+                    return obj;
+                }
                 //Si da error alguna vez, puede ser por este break
                 break;
             }else if(obj instanceof Break || obj instanceof Continue){
@@ -38,7 +45,13 @@ public class If extends Instruccion{
         }
         if(ejecutado && bloqueelse!=null){
         Entorno nuevo=new Entorno(actual);
-        bloqueelse.ejecutar(nuevo);
+        if(actual.Global!=null){
+            nuevo.Global=actual.Global;
+        }
+        Object obj=bloqueelse.ejecutar(nuevo);
+        if(obj !=null){
+            return obj;
+        }
         }
         return null;
     }

@@ -36,7 +36,7 @@ public class Bloque extends Instruccion{
             return obj;
         }else{
              Object obj= ((Instruccion)instruccion).ejecutar(ent);
-           if(obj instanceof Break || obj instanceof Continue ){
+           if(obj!=null){
                 return obj;
             }
         }

@@ -6,11 +6,14 @@
 package Arbol.instrucciones;
 
 import Arbol.Entorno.Entorno;
+import Arbol.Entorno.Tipo;
 import Arbol.Expresion;
 import Arbol.Instruccion;
 import Arbol.Nodo;
 import Arbol.instrucciones.Contexto.TipoInstruccion;
+import Interfaz.CError;
 import static Interfaz.Editor.lista_ciclos;
+import static Interfaz.Editor.lista_errores;
 
 /**
  *
@@ -39,20 +42,24 @@ public class For extends Instruccion {
        
            
           
-           Entorno tabla=new Entorno(ent);
+           Entorno tabla;
        
         if (veces == 1) {
-            lista_ciclos.add(TipoInstruccion.ciclo);
+//            lista_ciclos.add(TipoInstruccion.ciclo);
 //        Expresion variable=
 //valor1 declara o recupera el valor de la variable a usar en el for
-            
+            tabla=new Entorno(ent);
             valor1.ejecutar(tabla);
+        }else{
+            tabla=ent;
         }
+             
         //validacion se encarga de realizar la validacion de la expresion en el for
         
         Expresion validacion = valor2.getValor(tabla);
+        if(validacion.tipo.tipo.equals(Tipo.EnumTipo.booleano)){
         
-        if (validacion != null && Boolean.parseBoolean(validacion.valor.toString())) {
+        if (Boolean.parseBoolean(validacion.valor.toString())) {
             Entorno actual1=new Entorno(tabla);
             if(bloque!=null){
             for (Nodo instruccion : bloque.intruccion) {
@@ -67,6 +74,8 @@ public class For extends Instruccion {
                         ejecutado = false;
                         break;
 //                  return null;
+                    }else if(obj!=null){
+                        return obj;
                     }
                 } else if (instruccion instanceof Expresion) {
                     ((Expresion) instruccion).getValor(actual1);
@@ -83,12 +92,17 @@ public class For extends Instruccion {
         
        
         
-            if (!ejecutado) {
-                veces++;
+            if (ejecutado) {
+                lista_ciclos.pop();
+            }else{
+               veces++;
                 ejecutar(actual1);
             }
         
        }
+    }else{
+            lista_errores.add(new CError("Semantico","Error de tipos en la condición del for. No puede venir una expresion de Tipo: "+validacion.tipo.tipo+".",validacion.linea,validacion.columna));
+        }
         return null;
     }
 

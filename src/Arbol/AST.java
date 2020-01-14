@@ -5,6 +5,7 @@
  */
 package Arbol;
 
+import Arbol.Arreglos.DeclararArreglo;
 import Arbol.Entorno.Entorno;
 import Arbol.Entorno.Simbolo;
 import Arbol.MetodosyFunciones.*;
@@ -12,6 +13,7 @@ import Arbol.instrucciones.Bloque;
 import Arbol.instrucciones.Clase;
 import Arbol.instrucciones.Declaracion;
 import Arbol.instrucciones.Importar;
+import Arbol.instrucciones.Instancia;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -32,6 +34,7 @@ public class AST {
     }
 
     public void Ejecutar() {
+       
         for (Nodo it : lista_instrucciones) {
             if (it instanceof Importar) {
                 Importar imp = (Importar) it;
@@ -45,11 +48,13 @@ public class AST {
                 cl.ejecutar(tablaGlobal);
                 
                 }else{
+                    DeclararMFV(cl);
                     Entorno clas=new Entorno(tablaGlobal);
                 clas.Global=clas;
                     LinkedList<Nodo> instrucciones = (LinkedList<Nodo>) cl.instrucciones;
                 for(Nodo nd:instrucciones){
                     if(nd instanceof Metodo){
+                        //se ejecuta todo lo que viene en el metodo main
                         Metodo met=(Metodo)nd;
                         String nom=met.nombre.toLowerCase();
                         if(nom.equals("main") && met.parametros==null){
@@ -80,5 +85,32 @@ public class AST {
                 }
         return false;
     }
+    private void DeclararMFV(Clase cl){
+         Entorno clas=new Entorno(tablaGlobal);
+                clas.Global=clas;
+                    LinkedList<Nodo> instrucciones = (LinkedList<Nodo>) cl.instrucciones;
+                for(Nodo nd:instrucciones ){
+                    if(nd instanceof Metodo){
+                        Metodo met=(Metodo)nd;
+                        String nom=met.nombre.toLowerCase();
+                        if(nom.equals("main")){
+                             if(met.parametros!=null){
+                                 met.ejecutar(clas);
+                             }           
+                        }else{
+                            met.ejecutar(clas);
+                        }
+                    }else if(nd instanceof Funcion){
+                         Funcion met=(Funcion)nd;
+                            met.ejecutar(clas);                         
+                        
+                    }
+                }
+                for(Nodo nd:instrucciones){
+                    if(nd instanceof Declaracion   || nd instanceof DeclararArreglo || nd instanceof Instancia){
+                        ((Instruccion) nd).ejecutar(clas);
+                    }
+                }
+}
 
 }

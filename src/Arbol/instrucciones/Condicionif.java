@@ -29,22 +29,29 @@ public class Condicionif extends Instruccion{
     @Override
     public Object ejecutar(Entorno ent) {
         Entorno actual=new Entorno(ent);
-        Expresion val=exp.getValor(actual);
-       
+        if(ent.Global!=null){
+            actual.Global=ent.Global;
+        }
+        Expresion resultado=exp.getValor(actual);
         Boolean ejecutado=false;
-        if(Boolean.parseBoolean(val.valor.toString())){
+        if(resultado.tipo.tipo.equals(Tipo.EnumTipo.booleano)){
+        
+        if(Boolean.parseBoolean(resultado.valor.toString())){
             ejecutado=true;
+            if(bloque!=null){
          Object obj= bloque.ejecutar(actual);
-            if(obj instanceof Break || obj instanceof Continue){
+            if(obj!=null){
                 //a++; 
                 return obj;
-            }else if(obj instanceof Expresion){
-                
             }
+            }
+//            else if(obj instanceof Expresion){
+//                
+//            }
+        }
         }else{
-//             System.out.println("Error Semantico: La condicion no es de tipo Booleano.  Tipo: "+val.tipo+" Linea: "+linea +" Columna: "+columna);
-//            CError error=new CError(Tipo.EnumTipo.error.toString(), "Opción incorrecta:\nLa condicion no es de tipo Booleano.  Tipo:"+val.tipo, linea, columna);
-//            lista_errores.add(error);
+             lista_errores.add(new CError("Semantico","Error de tipos en la condición del if. No puede venir una expresion de Tipo: "+resultado.tipo.tipo+".",resultado.linea,resultado.columna));
+             
         }
         return ejecutado;
     }

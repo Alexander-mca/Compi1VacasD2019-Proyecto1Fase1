@@ -7,9 +7,17 @@ package Interfaz;
 
 import Analizadores.sym;
 import Arbol.AST;
+import Arbol.Expresion;
+import Arbol.Instruccion;
+import Arbol.MetodosyFunciones.Metodo;
+import Arbol.Nodo;
+import Arbol.instrucciones.Clase;
+
 import com.mxrck.autocompleter.TextAutoCompleter;
 import Arbol.instrucciones.Contexto;
 import Arbol.instrucciones.Contexto.TipoInstruccion;
+import Arbol.instrucciones.Declaracion;
+import Arbol.instrucciones.Importar;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import java.awt.Color;
 import java.awt.Component;
@@ -61,6 +69,7 @@ public static LinkedList<CError> lista_errores=new LinkedList<>();
 public static LinkedList<TipoInstruccion> lista_ciclos=new LinkedList<>();
 private LinkedList<File> archivos=new LinkedList<>();
 public static int entrada=0;
+AST reporte;
 private int tabs=2;
     /**
      * Creates new form Editor
@@ -151,6 +160,7 @@ private int tabs=2;
         jMenu3 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(0, 0, 0));
         setResizable(false);
 
         pestañas.addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -230,6 +240,11 @@ private int tabs=2;
         jMenu2.add(jMenuItem5);
 
         jMenuItem6.setText("Reporte AST");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem6);
 
         jMenuBar1.add(jMenu2);
@@ -358,7 +373,7 @@ private int tabs=2;
                
                     JScrollPane er=new JScrollPane(comando1);               
                      comando1.setText("");                 
-                    pestañas.addTab("Tab"+tabs,er);
+                    pestañas.addTab("tab"+tabs,er);
                     tabs++;
 //                    comando1.setPreferredSize(new Dimension(630, 250));
                     ObtenerCursor(comando1);
@@ -433,7 +448,7 @@ private int tabs=2;
             }
             
                      archivo=seleccionar.getSelectedFile();
-                     if(archivo.getName().endsWith(".NM")|| archivo.getName().endsWith(".txt")){
+                     if(archivo.getName().endsWith(".NM")){
                          String documento=getTextArea().getText();
                          String mensaje=GuardarArchivo(archivo,documento);
                          if(mensaje!=null){
@@ -503,6 +518,45 @@ private int tabs=2;
      }
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        // TODO add your handling code here:
+        if(reporte!=null){
+            String contenido="digraph ast{",nodos="",relaciones="";
+           
+            for(int n=0;n<reporte.lista_instrucciones.size();n++){
+                Nodo ins=reporte.lista_instrucciones.get(n);
+                String data;
+                
+                
+                if(ins instanceof Clase){
+                    Clase cl=(Clase)ins;
+                    nodos+="node"+n+"[label=\""+cl.nombre+"\n<Clase>\"]";
+                    if(cl.instrucciones!=null){
+                        for(int a=0;a<cl.instrucciones.size();a++){
+                            Nodo in2=cl.instrucciones.get(a);
+                            if(in2 instanceof Metodo){
+                                Metodo met=(Metodo)in2;
+                            nodos+="nod"+a+"[label=\""+met.nombre+"\n<Metodo>\"]";
+                            }else if(in2 instanceof Declaracion){
+                                
+                            }
+                        }
+                            
+                    }
+                }else if(ins instanceof Importar){
+                    //llamar otro metodo
+                }
+            }
+        }
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+private String generateAST(String data){
+    String contenido=data;
+    int n=0;
+    do{
+        
+    }while(n<reporte.lista_instrucciones.size());
+    return contenido;
+}
     private JTextPane getTextArea(){
    
        int index = pestañas.getSelectedIndex();
@@ -539,7 +593,7 @@ if(c instanceof JScrollPane){
        lista_errores.clear();
       Analizadores.parser sintactico;
       Analizadores.Scanner scanner;
-      
+      if(cmd!=null){
     AST arbol;
      try{
          
@@ -551,6 +605,7 @@ if(c instanceof JScrollPane){
         
         sintactico.parse();
         arbol=sintactico.AST;
+        reporte=sintactico.AST;
         if(arbol!=null){
             arbol.Ejecutar();
             
@@ -567,6 +622,7 @@ if(c instanceof JScrollPane){
      if(!lista_errores.isEmpty()){
          JOptionPane.showMessageDialog(null, "Existen errores. Revise el reporte de errores.");
      }
+      }
 }
      private String GuardarArchivo(File archivo, String documento){
         String mensaje=null;

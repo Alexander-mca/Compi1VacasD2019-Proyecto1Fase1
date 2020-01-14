@@ -6,6 +6,7 @@
 package Arbol.instrucciones;
 
 import Arbol.Entorno.Entorno;
+import Arbol.Entorno.Tipo;
 import Arbol.Expresion;
 import Arbol.Instruccion;
 import Arbol.Nodo;
@@ -26,7 +27,7 @@ public class Dowhile extends Instruccion{
    public Dowhile(Expresion condicion,Bloque lista_instrucciones){
        this.condicion=condicion;
        this.lista_instrucciones=lista_instrucciones;
-//       lista_ciclos.add(TipoInstruccion.ciclo);
+       lista_ciclos.add(TipoInstruccion.ciclo);
    }
     @Override
     public Object ejecutar(Entorno ent) {
@@ -35,7 +36,7 @@ public class Dowhile extends Instruccion{
          Entorno actual=new Entorno(ent);
             if(veces==1){
                
-            lista_ciclos.add(TipoInstruccion.ciclo);
+//            lista_ciclos.add(TipoInstruccion.ciclo);
             }
             if(lista_instrucciones!=null){
           for(Nodo instruccion:lista_instrucciones.intruccion){
@@ -50,7 +51,11 @@ public class Dowhile extends Instruccion{
                   ejecutado=false;
                   break;
 //                  return null;
+              }else if(obj!=null){
+                      return obj;
               }
+              
+                    
               }else if(instruccion instanceof Expresion){
                   ((Expresion)instruccion).getValor(actual);
               }
@@ -62,10 +67,16 @@ public class Dowhile extends Instruccion{
           
           if(!ejecutado){
               Expresion resultado=condicion.getValor(actual);
-              if(resultado!=null && Boolean.parseBoolean(resultado.valor.toString())){
+              if(resultado.tipo.tipo.equals(Tipo.EnumTipo.booleano)){
+              if(Boolean.parseBoolean(resultado.valor.toString())){
               veces++;
              ejecutar(actual);
-          }
+               }
+              }else{
+                   lista_errores.add(new CError("Semantico","Error de tipos en la condición del DoWhile. No puede venir una expresion de Tipo: "+resultado.tipo.tipo+".",resultado.linea,resultado.columna));
+              }
+          }else{
+              lista_ciclos.pop();
           }
        return null;
     }

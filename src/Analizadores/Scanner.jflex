@@ -17,7 +17,7 @@ import Interfaz.CError;
 %init{
     yyline = 1; 
     yychar = 1; 
-    yycolumn = 1;
+    yycolumn = 0;
 %init} 
  
 %{

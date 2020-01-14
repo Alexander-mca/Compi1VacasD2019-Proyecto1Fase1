@@ -23,13 +23,13 @@ public class Default extends Instruccion{
     public Object ejecutar(Entorno ent) { 
                 
        Entorno nuevo=new Entorno(ent);
-     
+     if(bloque!=null){
        
      Object obj=   bloque.ejecutar(nuevo);
                  if(obj instanceof Break || obj instanceof Continue){
                 return obj;
             }
-        
+     }
        return true;
     }
     

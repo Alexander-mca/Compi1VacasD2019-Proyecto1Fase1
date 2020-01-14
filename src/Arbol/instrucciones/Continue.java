@@ -23,7 +23,7 @@ public class Continue extends Instruccion{
     @Override
     public Object ejecutar(Entorno ent) {
          if(lista_ciclos.getLast()==Contexto.TipoInstruccion.ciclo){
-          lista_ciclos.pop();
+//          lista_ciclos.pop();
           return this;
       }
       

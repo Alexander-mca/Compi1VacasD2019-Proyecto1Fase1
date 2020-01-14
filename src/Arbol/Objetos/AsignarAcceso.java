@@ -57,7 +57,10 @@ public Expresion valor;
 //                 Asignacion asig=new Asignacion(idVar, linea, columna, valor);
 //                 asig.ejecutar(ent);
         
-        } //marcar error si la variable no es un objeto
+        } else{
+           lista_errores.add(new CError("Semantico","La variable '"+idObj+"' no es un objeto. No se le puede asignar valores primitivos.",linea,columna));
+       } 
+//marcar error si la variable no es un objeto
        return null;
     }
     private void AsignaAcceso(Entorno objeto,Entorno exp){

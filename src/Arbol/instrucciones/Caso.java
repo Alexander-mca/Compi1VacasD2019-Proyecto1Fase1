@@ -36,9 +36,11 @@ public class Caso extends Instruccion{
 //            boolean caso=Boolean.parseBoolean(resultado.getValor(ent).toString());
      
             ejecutado=true;
+            if(bloque!=null){
          Object obj= bloque.ejecutar(actual);
-            if(obj instanceof Break || obj instanceof Continue){
+            if(obj!=null){
                 return obj;
+            }
             }
         }  
         

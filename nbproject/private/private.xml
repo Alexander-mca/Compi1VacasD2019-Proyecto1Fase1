@@ -3,18 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/instrucciones/Asignacion.java</file>
-            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/Entorno/Entorno.java</file>
             <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Interfaz/Editor.java</file>
             <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Analizadores/Sintactico.cup</file>
-            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Analizadores/Scanner.jflex</file>
+            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/instrucciones/Importar.java</file>
             <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/Objetos/CrearObjeto.java</file>
-            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/instrucciones/Declaracion.java</file>
+            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/AST.java</file>
             <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/Objetos/AsignarAcceso.java</file>
-            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/Expresiones/Id.java</file>
             <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/Objetos/Acceso.java</file>
-            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/MetodosyFunciones/Llamada.java</file>
-            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/instrucciones/Instancia.java</file>
+            <file>file:/C:/Users/alexa/Documents/NetBeansProjects/%5BCompi1VacasD2019%5DProyecto1/src/Arbol/instrucciones/Clase.java</file>
         </group>
     </open-files>
 </project-private>

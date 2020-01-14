@@ -26,27 +26,29 @@ import java.util.LinkedList;
 
 public class Llamada extends Expresion{
 public String nombre;
-public Expresion expresion;
+//public Expresion expresion;
 public LinkedList<Nodo> parametros;
 public Llamada(String nombre,LinkedList<Nodo> parametros){
     this.nombre=nombre;
     this.parametros=parametros;
+    this.nombre+="#";
 }
     @Override
     public Expresion getValor(Entorno ent) {
-       if(!nombre.contains("#")){
-        nombre+="#";
-       }
+        String name=nombre;
+//       if(!name.contains("#")){        
+//        name+="#";
+//       }
          if(parametros!=null){
-            for (Nodo decl:parametros) {
-               Expresion exp=((Expresion)decl).getValor(ent);
-                nombre+=exp.tipo.tipo;
+            for (Nodo decl:parametros) {               
+               Expresion exp=((Expresion)decl).getValor(ent);               
+                name+=exp.tipo.tipo;               
             }
         }
          //se busca el metodo en el entorno global
          Entorno nuevo1=new Entorno(ent);
          nuevo1.Global=ent.Global;
-        Simbolo sim=nuevo1.Global.buscar(nombre, linea, columna, "El metodo ");
+        Simbolo sim=nuevo1.Global.buscar(name, linea, columna, "El metodo ");
         if(sim!=null){
         if(sim.tipo.tipo.equals(Tipo.EnumTipo.metodo) || sim.tipo.tipo.equals(Tipo.EnumTipo.constructor)){   
             MDatos metodo=(MDatos)sim.valor;
@@ -64,14 +66,18 @@ public Llamada(String nombre,LinkedList<Nodo> parametros){
             //se ejecutan las instrucciones del metodo
             Entorno nuevo=new Entorno(metodo.entorno);
             nuevo.Global=metodo.entorno.Global;
+            
+            if(metodo.instrucciones!=null){
             Object retorno=metodo.instrucciones.ejecutar(nuevo);
+            
             //se verifica si el metodo posee un return
             
             if(retorno instanceof Return){
                 return null;
             }else if(retorno instanceof Expresion){
                 Expresion exp=(Expresion)retorno;
-                lista_errores.add(new CError("Semantico","El "+sim.tipo.tipo+" "+nombre+" posee un return, pero no deberia tener una expresion.",exp.linea,exp.columna));
+                lista_errores.add(new CError("Semantico","El "+sim.tipo.tipo+" "+name+" posee un return, pero no deberia tener una expresion.",exp.linea,exp.columna));
+            }
             }
         }else if(sim.tipo.tipo.equals(Tipo.EnumTipo.funcion)){
             //se busca la funcion en el entorno 
@@ -90,33 +96,36 @@ public Llamada(String nombre,LinkedList<Nodo> parametros){
                 }
              }
                 //se ejecutan las instrucciones de la funcion
+                function.entorno.Global=nuevo1.Global;
                 Entorno nuevo=new Entorno(function.entorno);
                 nuevo.Global=function.entorno.Global;
+                if(function.instrucciones!=null){
+                    
                 Object retorno=((Expresion)function.instrucciones.ejecutar(nuevo)).valor;
                 //verificar que la funcion tenga un retorno
-                if(retorno!=null){
+                
                     
                     if(retorno instanceof Arreglo){
                         Arreglo arr=(Arreglo)retorno;
-                       expresion=VerificarTipos(arr,function);
+                       Expresion expresion=VerificarTipos(arr,function);
                        return expresion;
                         
                         
                     }else if(retorno instanceof Expresion){
-                    expresion=(Expresion)retorno;
+                    Expresion expresion=(Expresion)retorno;
                     String tipo1=expresion.tipo.tipo.toString().toLowerCase();
                     String tipo2=function.tipoF.toLowerCase();
                     if(tipo1.equals(tipo2)){
                         return expresion;
                     }else{
-                        lista_errores.add(new CError("Semantico","En La función "+nombre+", la expresion del return no es del mismo tipo que la funcion. Tipo Funcion: "+tipo2+" Tipo expresion de Return: "+tipo1,expresion.linea,expresion.columna));
+                        lista_errores.add(new CError("Semantico","En La función "+name+", la expresion del return no es del mismo tipo que la funcion. Tipo Funcion: "+tipo2+" Tipo expresion de Return: "+tipo1,expresion.linea,expresion.columna));
                     }
                     }else{
                         Return ret=(Return)retorno;
-                        lista_errores.add(new CError("Semantico","El return de la funcion "+nombre+" no posee una expresion.",ret.linea,ret.columna));
+                        lista_errores.add(new CError("Semantico","El return de la funcion "+name+" no posee una expresion.",ret.linea,ret.columna));
                     }
                 }else{
-                    lista_errores.add(new CError("Semantico","La funcion "+nombre+" no posee un return.",linea,columna));
+                    lista_errores.add(new CError("Semantico","La funcion "+name+" no posee un return.",linea,columna));
                 }
             
         

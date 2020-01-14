@@ -13,6 +13,8 @@ import Arbol.Expresiones.Id;
 import Arbol.Instruccion;
 import Arbol.MetodosyFunciones.Llamada;
 import Arbol.Objeto;
+import Interfaz.CError;
+import static Interfaz.Editor.lista_errores;
 
 /**
  *
@@ -41,7 +43,7 @@ public Expresion expresion;
        String rthis=idObj;
        Simbolo sim;
        if(rthis.toLowerCase().equals("this")){
-           idObj=rthis.toLowerCase();
+          
            sim=ent.Global.buscar(idObj, linea, columna, "El objeto ");
        }else{
           sim=ent.Global.buscar(idObj, linea, columna, "El objeto ");
@@ -62,7 +64,10 @@ public Expresion expresion;
 //                exp=expresion.getValor(entObj);
 //            }
             return exp;
-        } //marcar error si la variable no es un objeto
+        }else{
+           lista_errores.add(new CError("Semantico","La variable '"+idObj+"' no es un objeto.",linea,columna));
+       }
+//marcar error si la variable no es un objeto
         return null;
     }
     

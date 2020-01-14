@@ -28,7 +28,7 @@ public Bloque instrucciones;
     public Funcion(String tipoF, LinkedList<String> profundidad, String id, LinkedList<Nodo> parametros, Bloque instrucciones) {
         this.tipoF = tipoF;
         this.profundidad = profundidad;
-        this.id = id;
+        this.id = id.toLowerCase();
         this.parametros = parametros;
         this.instrucciones = instrucciones;
     }

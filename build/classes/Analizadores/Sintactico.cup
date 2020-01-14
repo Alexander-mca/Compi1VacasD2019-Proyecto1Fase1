@@ -55,10 +55,10 @@ rgraph,rsuper,rread_file,rwrite_file,rinstanceof,rread,graphdot,graphentornos;
 terminal umenos; //Para manejar el - E
 
 non terminal INICIO;
-non terminal LinkedList<Nodo> L_INSTRUCCIONES,L_CASOS,VARIABLES,PARAMETROS,L_PRINCIPAL,L_CLASE,X,PROF,BLOQUEF;
-non terminal Instruccion INSTRUCCION,DECLARACION,ASIGNACION,INSTCLASE, ARREGLO,INSTOBJETO,GRAFICAR, CLASE, IMPRIMIR,INST, SENTENCIA_IF, SENT_WHILE, BREAK, CONTINUE,SENT_DOWHILE, SENT_FOR, SENT_SWITCH,FORD,CASOS,SENT_IMPORT,METODO,FUNCION,FUNCIONA,FUNCIONB,RETURN,CONSTRUCT;
-non terminal Nodo FORAUM;
-non terminal Expresion E,M,VALORES,LLAMADA,ACCESO,N,A,LLAMA;
+non terminal LinkedList<Nodo> L_INSTRUCCIONES,L_CASOS,VARIABLES,PARAMETROS,L_PRINCIPAL,L_CLASE,X,PROF,BLOQUEF,LLAMA;
+non terminal Instruccion DECLARACION,ASIGNACION,INSTCLASE, ARREGLO,INSTOBJETO,GRAFICAR, CLASE, IMPRIMIR,INST, SENTENCIA_IF, SENT_WHILE, BREAK, CONTINUE,SENT_DOWHILE, SENT_FOR, SENT_SWITCH,FORD,CASOS,SENT_IMPORT,METODO,FUNCION,FUNCIONA,FUNCIONB,RETURN,CONSTRUCT;
+non terminal Nodo FORAUM,INSTRUCCION;
+non terminal Expresion E,M,VALORES,LLAMADA,ACCESO,N,A;
 non terminal Bloque BLOQUE,BLOQUECASE;
 non terminal LinkedList<String> PROFUNDIDAD;
 //non terminal String FUN;
@@ -136,17 +136,23 @@ BLOQUEF::= parizquierdo VARIABLES:a parderecho {:RESULT=a;:}
 ;
 L_INSTRUCCIONES ::= L_INSTRUCCIONES:a INSTRUCCION:b {: RESULT=a;RESULT.add(b); :}
                             | INSTRUCCION:a {: RESULT=new LinkedList<>(); RESULT.add(a);:}
-                            | L_INSTRUCCIONES:a M:b puntoycoma {:RESULT=a;RESULT.add(b);:}
+                           /* | L_INSTRUCCIONES:a M:b puntoycoma {:RESULT=a;RESULT.add(b);:}
                             | M:a puntoycoma {: RESULT=new LinkedList<>(); RESULT.add(a);:}
                             | L_INSTRUCCIONES:a LLAMADA:b puntoycoma {:RESULT=a;RESULT.add(b);:}
                             | LLAMADA:a puntoycoma {: RESULT=new LinkedList<>(); RESULT.add(a);:}
+                            | L_INSTRUCCIONES:a ACCESO:b puntoycoma {:RESULT=a;RESULT.add(b);:}
+                            | ACCESO:a puntoycoma {: RESULT=new LinkedList<>(); RESULT.add(a);:}
+*/
 ;
 L_CASOS ::=L_CASOS:a rcase VALORES:b dospuntos L_INSTRUCCIONES:c {:Caso caso=new Caso(b,new Bloque(c));a.add(caso); RESULT=a;:}
             |L_CASOS:a rdefault dospuntos L_INSTRUCCIONES:b{:Default defualt=new Default(new Bloque(b));a.add(defualt); RESULT=a;:}
           | CASOS:a {: RESULT=new LinkedList<>(); RESULT.add(a);:}
 ;
 INSTRUCCION ::= DECLARACION:a puntoycoma {: RESULT=a; :}
-            | RETURN:a {:RESULT=a;:}
+            | RETURN:a puntoycoma {:RESULT=a;:}
+            | ACCESO:a puntoycoma {:RESULT=a;:}
+            | LLAMADA:a puntoycoma {:RESULT=a;:}
+            | M:a puntoycoma{:RESULT=a;:}
             | INSTOBJETO:a puntoycoma {:RESULT=a;:}
             | ASIGNACION:a puntoycoma {: RESULT=a; :}
             | IMPRIMIR:a puntoycoma{: RESULT=a; :}
@@ -166,7 +172,7 @@ INSTRUCCION ::= DECLARACION:a puntoycoma {: RESULT=a; :}
             
 ;
 ARREGLO::= T:a PROFUNDIDAD:b id:c igual A:d {:RESULT=new DeclararArreglo(b,c,a.tipo.toString(),d,aleft,aright);:}
-           |T:a PROFUNDIDAD:b id:c igual rnew T:d PROF:e{:RESULT=new DeclararArreglo(b,e,c,a.tipo.toString(),d.toString(),aleft,aright);:}
+           |T:a PROFUNDIDAD:b id:c igual rnew T:d PROF:e{:RESULT=new DeclararArreglo(b,e,c,a.tipo.toString(),d.tipo.toString(),aleft,aright);:}
            |T:a PROFUNDIDAD:b id:c igual LLAMADA:d {:RESULT=new DeclararArreglo(b,c,a.tipo.toString(),d,aleft,aright);:}
            |T:a PROFUNDIDAD:b id:c igual ACCESO:d {:RESULT=new DeclararArreglo(b,c,a.tipo.toString(),d,aleft,aright);:}
            |id:a PROFUNDIDAD:b id:c igual A:d {:RESULT=new DeclararArreglo(b,c,a,d,aleft,aright);:}
@@ -181,16 +187,16 @@ INSTOBJETO::= id:a id:b igual E:c {:RESULT=new Instancia(b,a,c);:}
                | id:a id:b {:RESULT=new Instancia(b,a);:}
                
 ;
-ACCESO::= id:a punto LLAMA:b{:RESULT=new Acceso(a,b,aleft,aright);:} 
-            
+ACCESO::= id:a punto id:b LLAMA:c{:RESULT=new Acceso(a,new Llamada(b,c),aleft,aright);:} 
+            |id:a punto id:b {:RESULT=new Acceso(a,new Id(b,bleft,bright),aleft,aright);:}
            // | rthis:a punto id:b igual E:c{::}
             //| id:a punto LLAMADA: {:RESULT=new Acceso(a,b,aleft,aright);:}
-            | rthis:a punto LLAMA:b {:RESULT=new Acceso(a,b,aleft,aright);:}
-            //| rthis:a punto id:b {:RESULT=new Acceso(a,b,aleft,aright);:}
+            | rthis:a punto id:b LLAMA:c {:RESULT=new Acceso(a,new Llamada(b,c),aleft,aright);:}
+            | rthis:a punto id:b {:RESULT=new Acceso(a,new Id(b,bleft,bright),aleft,aright);:}
 ;
-LLAMA::= id:a parizquierdo PARAMETROS:b parderecho {:RESULT=new Llamada(a,b);:}
-        |id:a parizquierdo parderecho {:RESULT=new Llamada(a,null);:}
-        |id:a {:RESULT=new Id(a,aleft,aright);:}
+LLAMA::=  parizquierdo PARAMETROS:b parderecho {:RESULT=b;:}
+        |parizquierdo parderecho {:RESULT=null;:}
+        
 ;
 METODO::=rvoid id:a parizquierdo VARIABLES:b parderecho BLOQUE:c{:RESULT=new Metodo(b,c,a);:}
             |rvoid id:a parizquierdo  parderecho BLOQUE:c{:RESULT=new Metodo(null,c,a);:}
@@ -204,7 +210,8 @@ GRAFICAR::= graphdot parizquierdo E:a coma E:b parderecho {:RESULT=new GraficarD
 
 DECLARACION ::= 
         T:a id:b igual E:c {: RESULT=new Declaracion(a,b,c,bleft,bright); :}
-        | T:a id:b {:  RESULT=new Declaracion(a,b,bleft,bright); :}
+        | T:a id:b {:  RESULT=new Declaracion(a,b,bleft,bright); :} 
+        
        
 ;
 FORD::= DECLARACION:a {:RESULT=a;:}
@@ -246,8 +253,8 @@ BLOQUE::= llaveizq llaveder {:RESULT=null;:}
             | llaveizq L_INSTRUCCIONES:a llaveder {:RESULT=new Bloque(a);:}
             
 ;
-RETURN::= rreturn E:a puntoycoma{:RESULT=new Return(a);:}
-           | rreturn puntoycoma{:RESULT=new Return(null);:}
+RETURN::= rreturn E:a {:RESULT=new Return(a);:}
+           | rreturn {:RESULT=new Return(null);:}
 ;
 //BLOQUECASE ::= llaveizq llaveder {:RESULT=null;:}
  //           | llaveizq L_CASOS:a llaveder {:RESULT=new Bloque(a);:}
@@ -310,7 +317,8 @@ E ::=   VALORES:a {:RESULT=a;:}
         | E:a and E:b {: RESULT=new And(aleft,aright,a,b);:}
         | E:a xor E:b {: RESULT=new Xor(aleft,aright,a,b);:}
         | not:a E:b {: RESULT=new Not(aleft,aright,b);:}
-        | id:a PROF:b punto LLAMA:c {:RESULT=new AccesoArreglo(b,a,c);:}   
+        | id:a PROF:b punto id:c LLAMA:d {:RESULT=new AccesoArreglo(b,a,new Llamada(c,d));:}  
+        | id:a PROF:b punto id:c {:RESULT=new AccesoArreglo(b,a,new Id(c,cleft,cright));:}
         | id:a PROF:b {:RESULT=new AccesoArreglo(b,a,null);:}
         | id:a {: RESULT = new Id(a, aleft,aright); :}
         | N:a {:RESULT=a;:}

@@ -42,7 +42,7 @@ public class Importar extends Instruccion{
             try{
            
            
-            String ruta="C:\\Users\\alexa\\Documents\\NetBeansProjects\\[Compi1VacasD2019]Proyecto1\\src\\"+exp.valor.toString();
+            String ruta="C:\\Users\\alexa\\Documents\\NetBeansProjects\\[Compi1VacasD2019]Proyecto1\\src\\Archivos\\"+exp.valor.toString();
             String texto="";
                 String aux="";
                 if(ruta.endsWith("NM")){
@@ -58,17 +58,19 @@ public class Importar extends Instruccion{
                     if(ant!=null){
                        
                           // ent.anterior=new Entorno(ant.tablaGlobal);
-                          Entorno auxiliar=ent;
-                          while(auxiliar!=null){
-                              if(auxiliar.anterior==null){
-                                  Entorno nuevo=new Entorno(ant.tablaGlobal);
-                                  Entorno extra=nuevo.anterior;
-                                  auxiliar.anterior=new Entorno(null);
-                                  auxiliar.anterior.tabla=extra.tabla;
-                                  break;
-                              }
-                              auxiliar=auxiliar.anterior;
-                          }
+//                          Entorno auxiliar=ent;
+//                          while(auxiliar!=null){
+//                              if(auxiliar.anterior==null){
+//                                  Entorno nuevo=new Entorno(ant.tablaGlobal);
+//                                  Entorno extra=nuevo.anterior;
+//                                  auxiliar.anterior=new Entorno(null);
+//                                  auxiliar.anterior.tabla=extra.tabla;
+//                                  break;
+//                              }
+//                              auxiliar=auxiliar.anterior;
+//                          }
+                            ent.anterior=ant.tablaGlobal;
+                            
                           
                        
                            

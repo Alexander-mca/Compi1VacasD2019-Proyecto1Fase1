@@ -478,7 +478,7 @@ int columna=1;
   public Scanner(java.io.Reader in) {
       yyline = 1; 
     yychar = 1; 
-    yycolumn = 1;
+    yycolumn = 0;
     this.zzReader = in;
   }
 

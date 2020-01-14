@@ -115,28 +115,34 @@ String tipoArreglo,Tipo2;
     }
     private Arreglo CreateArray(int profundidad,int cont) {
         Arreglo arr = null;
-        if (profundidad ==1) {
+        if (profundidad==1) {
             arr = new Arreglo(new Entorno(null),this.tipoArreglo);
-            cont = (int) ((Literal)this.prof.get(0)).valor;
+            String data=(((Expresion) this.prof.get(cont)).valor.toString());
+              int  cont1 = Integer.parseInt(data);
             LinkedList<Expresion> list = new LinkedList<>();
-            for (int x = 0; x < cont; x++) {
+            for (int x = 0; x < cont1; x++) {
                 list.add(null);
             }
             arr.ArregloCrear(list);
-            arr.entorno.insertar("size", new Simbolo(new Tipo(Tipo.EnumTipo.entero),cont), linea, columna, "La Variable ");
+            arr.entorno.insertar("size", new Simbolo(new Tipo(Tipo.EnumTipo.entero),list.size()), linea, columna, "La Variable ");
             return arr;
         } else if(profundidad>1) {
-            for (int x = 0; x < profundidad; x++) {
+//            cont=0;
+//            for (int x = 0; x < profundidad; x++) {
                 arr = new Arreglo(new Entorno(null),this.tipoArreglo);
-                cont = (int) ((Literal) this.prof.get(x)).valor;
+                String data=(((Expresion) this.prof.get(cont)).valor.toString());
+                int cont1 = Integer.parseInt(data);
                 LinkedList<Expresion> list = new LinkedList<>();
-                for (int y = 0; y < cont; y++) {
-                    Arreglo arreglo=CreateArray(profundidad-1,cont++);    
+                cont++;
+                for (int y = 0; y < cont1; y++) {
+                   
+                    
+                    Arreglo arreglo=CreateArray(profundidad-1,cont);    
                     list.add(arreglo);
                 }
                 arr.ArregloCrear(list);
-                arr.entorno.insertar("size", new Simbolo(new Tipo(Tipo.EnumTipo.entero),cont), linea, columna, "La Variable ");
-            }
+                arr.entorno.insertar("size", new Simbolo(new Tipo(Tipo.EnumTipo.entero),list.size()), linea, columna, "La Variable ");
+//            }
         }
         return arr;
     }

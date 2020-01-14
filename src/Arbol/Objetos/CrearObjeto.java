@@ -42,9 +42,12 @@ public String tipoC;
         Entorno nuevo=new Entorno(null);
         nuevo.Global=nuevo;
         tipoC+="@";
-        Simbolo sim=ent.buscar(tipoC, linea, columna,"La clase");
+        Simbolo sim=ent.Global.buscar(tipoC, linea, columna,"La clase");
         
         LinkedList<Nodo> instrucciones=(LinkedList)sim.valor;
+        for(Nodo ins:instrucciones){
+            
+        }
         for(Nodo ins:instrucciones){
             if(ins instanceof Metodo || ins instanceof Funcion){
                 

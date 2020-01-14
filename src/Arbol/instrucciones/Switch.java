@@ -6,12 +6,15 @@
 package Arbol.instrucciones;
 
 import Arbol.Entorno.Entorno;
+import Arbol.Entorno.Tipo;
 import Arbol.Expresion;
 import Arbol.Expresiones.relacionales.Igualque;
 import Arbol.Instruccion;
 import Arbol.Nodo;
 import Arbol.instrucciones.Contexto.TipoInstruccion;
+import Interfaz.CError;
 import static Interfaz.Editor.lista_ciclos;
+import static Interfaz.Editor.lista_errores;
 import java.util.LinkedList;
 
 /**
@@ -38,6 +41,7 @@ private boolean ejecutado=false;
            
         
         if(resultado!=null){
+            if(!resultado.tipo.tipo.equals(Tipo.EnumTipo.booleano)){
             if(veces==1){
             lista_ciclos.add(TipoInstruccion.rswitch);
             }
@@ -104,13 +108,16 @@ private boolean ejecutado=false;
             }
             if(!ejecutado){
                 veces++;
-                ejecutar(actual);
+                this.ejecutar(actual);
             }else{
                 ejecutado=false;
             }
             
             
         
+        }else{
+                 lista_errores.add(new CError("Semantico","Error de tipos en la condición del Switch. No puede venir una expresion de Tipo: "+resultado.tipo.tipo+".",resultado.linea,resultado.columna));
+            }
         }
         return null;
     }
